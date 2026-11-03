@@ -1,0 +1,40 @@
+@model BranchFormViewModel
+@{
+    ViewData["Title"] = "New Branch";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item"><a asp-action="Index">Branches</a></li>
+    <li class="breadcrumb-item active" aria-current="page">New</li>
+}
+
+<h1 class="h3 mb-4">New Branch</h1>
+
+<div class="card-metric" style="max-width: 560px;">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Address" class="form-label"></label>
+            <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Phone" class="form-label"></label>
+            <input asp-for="Phone" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

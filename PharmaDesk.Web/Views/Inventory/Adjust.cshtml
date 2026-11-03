@@ -1,0 +1,53 @@
+@model StockAdjustmentFormViewModel
+@{
+    ViewData["Title"] = "Adjust Stock";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item"><a asp-action="Batches">Batches</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Adjust</li>
+}
+
+<h1 class="h3 mb-4">Adjust Stock</h1>
+
+<div class="card-metric" style="max-width: 560px;">
+    <p>
+        <strong>@Model.MedicineBrandName</strong> &mdash; Batch @Model.BatchNumber<br />
+        Current remaining quantity: <strong>@Model.CurrentQuantityRemaining.ToString("N2")</strong>
+    </p>
+
+    <form asp-action="Adjust" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+        <input type="hidden" asp-for="MedicineBatchId" />
+
+        <div class="mb-3">
+            <label asp-for="QuantityDelta" class="form-label"></label>
+            <input asp-for="QuantityDelta" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="QuantityDelta" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Reason" class="form-label"></label>
+            <select asp-for="Reason" class="form-select">
+                <option value="">-- Select --</option>
+                <option value="Damage">Damage</option>
+                <option value="Expired">Expired</option>
+                <option value="Physical Count Correction">Physical Count Correction</option>
+                <option value="Other">Other</option>
+            </select>
+            <span asp-validation-for="Reason" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Notes" class="form-label"></label>
+            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Adjustment</button>
+        <a class="btn btn-outline-secondary" asp-action="Batches">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

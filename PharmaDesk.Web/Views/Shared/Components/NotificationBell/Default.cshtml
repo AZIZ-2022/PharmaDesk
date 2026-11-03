@@ -1,0 +1,29 @@
+@model List<PharmaDesk.Application.Common.Interfaces.NotificationItem>
+
+<div class="dropdown">
+    <button class="btn btn-sm btn-light position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+        &#128276;
+        @if (Model.Any())
+        {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">@Model.Count</span>
+        }
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end" style="min-width: 320px;">
+        @if (!Model.Any())
+        {
+            <li><span class="dropdown-item-text text-muted small">No notifications.</span></li>
+        }
+        else
+        {
+            foreach (var item in Model)
+            {
+                <li>
+                    <a class="dropdown-item d-flex align-items-start gap-2" href="@item.LinkUrl">
+                        <span class="badge text-bg-@(item.Severity == "danger" ? "danger" : "warning")">&nbsp;</span>
+                        <span>@item.Message</span>
+                    </a>
+                </li>
+            }
+        }
+    </ul>
+</div>

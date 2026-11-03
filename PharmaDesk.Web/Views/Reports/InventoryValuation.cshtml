@@ -1,0 +1,68 @@
+@model InventoryValuationViewModel
+@{
+    ViewData["Title"] = "Inventory Valuation";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">Inventory Valuation</li>
+}
+
+<h1 class="h3 mb-4">Inventory Valuation</h1>
+<p class="text-muted small">
+    A live snapshot of current stock value (remaining quantity &times; purchase cost per unit), as of now
+    &mdash; not a historical valuation for a past date.
+</p>
+
+<form method="get" class="mb-3 d-flex gap-2 align-items-end flex-wrap">
+    <div>
+        <label class="form-label small mb-0">Branch</label>
+        <select name="branchId" class="form-select">
+            <option value="">-- All branches --</option>
+            @foreach (var branch in Model.AvailableBranches)
+            {
+                <option value="@branch.Value" selected="@(Model.BranchId.HasValue && branch.Value == Model.BranchId.Value.ToString())">@branch.Text</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-outline-secondary">Filter</button>
+    <a class="btn btn-outline-secondary" asp-action="InventoryValuation" asp-route-branchId="@Model.BranchId" asp-route-format="csv">Export CSV</a>
+</form>
+
+<div class="card-metric p-0">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Medicine</th>
+                <th>Unit</th>
+                <th class="text-end">Quantity Remaining</th>
+                <th class="text-end">Stock Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in Model.Rows)
+            {
+                <tr>
+                    <td>@row.MedicineBrandName</td>
+                    <td>@row.BaseUnitName</td>
+                    <td class="text-end">@row.QuantityRemaining.ToString("N2")</td>
+                    <td class="text-end">@row.TotalValue.ToString("N2")</td>
+                </tr>
+            }
+            @if (!Model.Rows.Any())
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">No stock on hand.</td>
+                </tr>
+            }
+        </tbody>
+        @if (Model.Rows.Any())
+        {
+            <tfoot>
+                <tr class="fw-bold">
+                    <td colspan="3">Total Stock Value</td>
+                    <td class="text-end">@Model.TotalValue.ToString("N2")</td>
+                </tr>
+            </tfoot>
+        }
+    </table>
+</div>

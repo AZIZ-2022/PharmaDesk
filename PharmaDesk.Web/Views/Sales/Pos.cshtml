@@ -1,0 +1,255 @@
+@model SaleFormViewModel
+@{
+    ViewData["Title"] = "Point of Sale";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item"><a asp-action="Index">Sales</a></li>
+    <li class="breadcrumb-item active" aria-current="page">New Sale</li>
+}
+
+<h1 class="h3 mb-4">New Sale</h1>
+
+<form asp-action="Complete" method="post" id="saleForm">
+    <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+    <div class="card-metric mb-4">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label asp-for="BranchId" class="form-label"></label>
+                <select asp-for="BranchId" class="form-select" asp-items="Model.AvailableBranches" id="branchSelect"></select>
+                <span asp-validation-for="BranchId" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="CustomerId" class="form-label"></label>
+                <select asp-for="CustomerId" class="form-select" asp-items="Model.AvailableCustomers"></select>
+                <span asp-validation-for="CustomerId" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="PaymentMethod" class="form-label"></label>
+                <select asp-for="PaymentMethod" class="form-select">
+                    <option value="Cash">Cash</option>
+                    <option value="Card">Card</option>
+                    <option value="Mobile Banking">Mobile Banking</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-metric mb-4 position-relative">
+        <label class="form-label">Search medicine (brand or generic name)</label>
+        <input type="text" class="form-control" id="medicineSearchInput" autocomplete="off" placeholder="Type to search..." />
+        <div id="searchResults" class="list-group position-absolute shadow" style="z-index: 1000; width: 90%; display: none; max-height: 280px; overflow-y: auto;"></div>
+    </div>
+
+    <div class="card-metric p-0 mb-4">
+        <table class="table mb-0" id="itemsTable">
+            <thead>
+                <tr>
+                    <th style="min-width: 200px;">Medicine</th>
+                    <th style="width: 140px;">Qty (base units)</th>
+                    <th style="width: 120px;">Unit price</th>
+                    <th style="width: 120px;">Line total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="itemsBody">
+                @for (var i = 0; i < Model.Items.Count; i++)
+                {
+                    <tr class="sale-item-row">
+                        <td>
+                            <span class="brand-display">@Model.Items[i].MedicineBrandName</span>
+                            <input type="hidden" data-field="MedicineId" value="@Model.Items[i].MedicineId" />
+                            <input type="hidden" data-field="MedicineBrandName" value="@Model.Items[i].MedicineBrandName" />
+                            <input type="hidden" data-field="UnitPriceQuoted" value="@Model.Items[i].UnitPriceQuoted" />
+                        </td>
+                        <td><input type="number" step="0.01" class="form-control form-control-sm qty-input" data-field="QuantityBaseUnits" value="@Model.Items[i].QuantityBaseUnits" /></td>
+                        <td class="unit-price-display">@Model.Items[i].UnitPriceQuoted.ToString("N2")</td>
+                        <td class="line-total-display align-middle">0.00</td>
+                        <td><button type="button" class="btn btn-sm btn-outline-danger remove-row-button">&times;</button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-metric mb-4" style="max-width: 420px; margin-left: auto;">
+        <div class="row mb-2">
+            <div class="col-6">Subtotal</div>
+            <div class="col-6 text-end" id="subTotalDisplay">0.00</div>
+        </div>
+        <div class="row mb-2 align-items-center">
+            <div class="col-6"><label asp-for="DiscountAmount" class="form-label mb-0"></label></div>
+            <div class="col-6"><input asp-for="DiscountAmount" class="form-control form-control-sm text-end amount-input" type="number" step="0.01" /></div>
+        </div>
+        <div class="row mb-2 align-items-center">
+            <div class="col-6"><label asp-for="TaxAmount" class="form-label mb-0"></label></div>
+            <div class="col-6"><input asp-for="TaxAmount" class="form-control form-control-sm text-end amount-input" type="number" step="0.01" /></div>
+        </div>
+        <div class="row mb-2 fw-bold">
+            <div class="col-6">Total</div>
+            <div class="col-6 text-end" id="totalDisplay">0.00</div>
+        </div>
+        <div class="row mb-2 align-items-center">
+            <div class="col-6"><label asp-for="AmountPaid" class="form-label mb-0"></label></div>
+            <div class="col-6"><input asp-for="AmountPaid" class="form-control form-control-sm text-end amount-input" type="number" step="0.01" /></div>
+        </div>
+        <div class="row fw-bold">
+            <div class="col-6">Due</div>
+            <div class="col-6 text-end" id="dueDisplay">0.00</div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Complete Sale</button>
+    <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+</form>
+
+<template id="itemRowTemplate">
+    <tr class="sale-item-row">
+        <td>
+            <span class="brand-display"></span>
+            <input type="hidden" data-field="MedicineId" />
+            <input type="hidden" data-field="MedicineBrandName" />
+            <input type="hidden" data-field="UnitPriceQuoted" />
+        </td>
+        <td><input type="number" step="0.01" class="form-control form-control-sm qty-input" data-field="QuantityBaseUnits" value="1" /></td>
+        <td class="unit-price-display">0.00</td>
+        <td class="line-total-display align-middle">0.00</td>
+        <td><button type="button" class="btn btn-sm btn-outline-danger remove-row-button">&times;</button></td>
+    </tr>
+</template>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            var itemsBody = document.getElementById('itemsBody');
+            var template = document.getElementById('itemRowTemplate');
+            var searchInput = document.getElementById('medicineSearchInput');
+            var searchResults = document.getElementById('searchResults');
+            var branchSelect = document.getElementById('branchSelect');
+            var discountInput = document.querySelector('[name="DiscountAmount"]');
+            var taxInput = document.querySelector('[name="TaxAmount"]');
+            var paidInput = document.querySelector('[name="AmountPaid"]');
+            var searchDebounceHandle = null;
+
+            function reindexAndBind() {
+                var rows = itemsBody.querySelectorAll('.sale-item-row');
+                rows.forEach(function (row, index) {
+                    row.querySelectorAll('[data-field]').forEach(function (input) {
+                        input.name = 'Items[' + index + '].' + input.getAttribute('data-field');
+                    });
+                });
+                recalculate();
+            }
+
+            function recalculate() {
+                var subTotal = 0;
+                itemsBody.querySelectorAll('.sale-item-row').forEach(function (row) {
+                    var qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+                    var price = parseFloat(row.querySelector('[data-field="UnitPriceQuoted"]').value) || 0;
+                    var lineTotal = qty * price;
+                    row.querySelector('.line-total-display').textContent = lineTotal.toFixed(2);
+                    row.querySelector('.unit-price-display').textContent = price.toFixed(2);
+                    subTotal += lineTotal;
+                });
+
+                var discount = parseFloat(discountInput.value) || 0;
+                var tax = parseFloat(taxInput.value) || 0;
+                var paid = parseFloat(paidInput.value) || 0;
+                var total = subTotal - discount + tax;
+
+                document.getElementById('subTotalDisplay').textContent = subTotal.toFixed(2);
+                document.getElementById('totalDisplay').textContent = total.toFixed(2);
+                document.getElementById('dueDisplay').textContent = (total - paid).toFixed(2);
+            }
+
+            function wireRow(row) {
+                row.querySelectorAll('input').forEach(function (el) {
+                    el.addEventListener('input', recalculate);
+                });
+                row.querySelector('.remove-row-button').addEventListener('click', function () {
+                    row.remove();
+                    reindexAndBind();
+                });
+            }
+
+            function addRow(result) {
+                var fragment = template.content.cloneNode(true);
+                itemsBody.appendChild(fragment);
+                var newRow = itemsBody.lastElementChild;
+
+                newRow.querySelector('.brand-display').textContent = result.brandName + ' (' + result.genericName + ') - ' + result.baseUnitName;
+                newRow.querySelector('[data-field="MedicineId"]').value = result.medicineId;
+                newRow.querySelector('[data-field="MedicineBrandName"]').value = result.brandName;
+                newRow.querySelector('[data-field="UnitPriceQuoted"]').value = result.unitPrice || 0;
+
+                wireRow(newRow);
+                reindexAndBind();
+            }
+
+            itemsBody.querySelectorAll('.sale-item-row').forEach(function (row) {
+                var brandSpan = row.querySelector('.brand-display');
+                var brandHidden = row.querySelector('[data-field="MedicineBrandName"]');
+                if (brandSpan && brandHidden && !brandSpan.textContent) {
+                    brandSpan.textContent = brandHidden.value;
+                }
+                wireRow(row);
+            });
+            reindexAndBind();
+
+            function renderResults(results) {
+                searchResults.innerHTML = '';
+                if (!results.length) {
+                    searchResults.style.display = 'none';
+                    return;
+                }
+                results.forEach(function (result) {
+                    var item = document.createElement('button');
+                    item.type = 'button';
+                    item.className = 'list-group-item list-group-item-action';
+                    var stockText = result.availableQuantity > 0
+                        ? (result.availableQuantity.toFixed(2) + ' ' + result.baseUnitName + '(s) in stock @@ ' + (result.unitPrice || 0).toFixed(2))
+                        : 'Out of stock';
+                    item.innerHTML = '<strong>' + result.brandName + '</strong> <span class="text-muted">(' + result.genericName + ')</span><br /><small>' + stockText + '</small>';
+                    item.disabled = result.availableQuantity <= 0;
+                    item.addEventListener('click', function () {
+                        addRow(result);
+                        searchInput.value = '';
+                        searchResults.style.display = 'none';
+                    });
+                    searchResults.appendChild(item);
+                });
+                searchResults.style.display = 'block';
+            }
+
+            searchInput.addEventListener('input', function () {
+                var q = searchInput.value.trim();
+                if (searchDebounceHandle) {
+                    clearTimeout(searchDebounceHandle);
+                }
+                if (q.length < 2) {
+                    searchResults.style.display = 'none';
+                    return;
+                }
+                searchDebounceHandle = setTimeout(function () {
+                    var branchId = branchSelect.value || 0;
+                    fetch('@Url.Action("SearchMedicines", "Sales")?q=' + encodeURIComponent(q) + '&branchId=' + branchId)
+                        .then(function (response) { return response.json(); })
+                        .then(renderResults)
+                        .catch(function () { searchResults.style.display = 'none'; });
+                }, 250);
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!searchResults.contains(e.target) && e.target !== searchInput) {
+                    searchResults.style.display = 'none';
+                }
+            });
+
+            [discountInput, taxInput, paidInput].forEach(function (el) {
+                el.addEventListener('input', recalculate);
+            });
+        })();
+    </script>
+}

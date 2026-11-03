@@ -1,0 +1,203 @@
+:root {
+    --sidebar-width: 250px;
+    --pharma-primary: #0f6e51;
+    --topbar-height: 56px;
+}
+
+body {
+    background-color: #f4f6f8;
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: #10243e;
+    color: #fff;
+}
+
+.sidebar-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1rem;
+}
+
+.sidebar-brand {
+    margin-bottom: 1.5rem;
+}
+
+.sidebar-brand .brand-name {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.sidebar-brand .brand-tag {
+    display: block;
+    font-size: .75rem;
+    color: rgba(255, 255, 255, .6);
+}
+
+.sidebar-nav .nav-link {
+    color: rgba(255, 255, 255, .75);
+    padding: .6rem .75rem;
+    border-radius: .375rem;
+    margin-bottom: .25rem;
+    font-size: .95rem;
+}
+
+.sidebar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, .08);
+    color: #fff;
+}
+
+.sidebar-nav .nav-link.active {
+    background-color: var(--pharma-primary);
+    color: #fff;
+    font-weight: 500;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, .1);
+}
+
+@media (min-width: 768px) {
+    .main-wrapper {
+        margin-left: var(--sidebar-width);
+    }
+}
+
+.topbar {
+    height: var(--topbar-height);
+    background-color: #fff;
+    border-bottom: 1px solid #e3e6ea;
+    padding: 0 1.25rem;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+.content-area {
+    padding: 1.5rem;
+}
+
+.status-banner {
+    border-radius: .5rem;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+.status-banner.status-ok {
+    background-color: #e6f4ea;
+    border: 1px solid #bfe3cb;
+    color: #1e6b3c;
+}
+
+.status-banner.status-fail {
+    background-color: #fdecea;
+    border: 1px solid #f6c6c1;
+    color: #9b2c21;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.status-dot.ok {
+    background-color: #2e9e52;
+}
+
+.status-dot.fail {
+    background-color: #d64540;
+}
+
+.card-metric {
+    border: 1px solid #e3e6ea;
+    border-radius: .5rem;
+    background: #fff;
+    padding: 1.25rem;
+}
+
+.card-metric .metric-label {
+    font-size: .8rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+
+.card-metric .metric-value {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #10243e;
+    margin-top: .25rem;
+}
+
+.auth-body {
+    background-color: #10243e;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-wrapper {
+    width: 100%;
+    max-width: 420px;
+    padding: 1.5rem;
+}
+
+.auth-card {
+    background: #fff;
+    border-radius: .75rem;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+}
+
+.auth-brand {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.auth-brand .brand-name {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #10243e;
+}
+
+.auth-brand .brand-tag {
+    display: block;
+    font-size: .8rem;
+    color: #6b7280;
+}
+
+.permission-matrix {
+    max-height: 420px;
+    overflow-y: auto;
+    border: 1px solid #e3e6ea;
+    border-radius: .5rem;
+    padding: 1rem;
+}
+
+.permission-matrix .module-group + .module-group {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e3e6ea;
+}
+
+.permission-matrix .module-title {
+    font-size: .8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: #6b7280;
+    margin-bottom: .5rem;
+}

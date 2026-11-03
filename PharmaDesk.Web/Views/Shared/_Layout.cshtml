@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PharmaDesk</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="offcanvas-md offcanvas-start sidebar" tabindex="-1" id="sidebarPanel" aria-labelledby="sidebarPanelLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-white" id="sidebarPanelLabel">PharmaDesk</h5>
+            <button type="button" class="btn-close btn-close-white d-md-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebarPanel" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body sidebar-body">
+            <div class="sidebar-brand d-none d-md-block">
+                <span class="brand-name">PharmaDesk</span>
+                <span class="brand-tag">Pharmacy Management</span>
+            </div>
+            <nav class="nav flex-column sidebar-nav">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Dashboard</a>
+                @if (User.HasClaim("permission", "Users.View"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "active" : "")" asp-controller="Users" asp-action="Index">Users</a>
+                }
+                @if (User.HasClaim("permission", "Roles.View"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Roles" ? "active" : "")" asp-controller="Roles" asp-action="Index">Roles</a>
+                }
+                @if (User.HasClaim("permission", "Branches.View"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Branches" ? "active" : "")" asp-controller="Branches" asp-action="Index">Branches</a>
+                }
+                @if (User.HasClaim("permission", "Tenant.Manage"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Tenant" ? "active" : "")" asp-controller="Tenant" asp-action="Index">Pharmacy Profile</a>
+                }
+                @if (User.HasClaim("permission", "Medicines.View"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Medicines" ? "active" : "")" asp-controller="Medicines" asp-action="Index">Medicines</a>
+                }
+                @if (User.HasClaim("permission", "Suppliers.View"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Suppliers" ? "active" : "")" asp-controller="Suppliers" asp-action="Index">Suppliers</a>
+                }
+                @if (User.HasClaim("permission", "Customers.View"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customers" ? "active" : "")" asp-controller="Customers" asp-action="Index">Customers</a>
+                }
+                @if (User.HasClaim("permission", "Purchases.View"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Purchases" ? "active" : "")" asp-controller="Purchases" asp-action="Index">Purchases</a>
+                }
+                @if (User.HasClaim("permission", "Inventory.View"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Inventory" ? "active" : "")" asp-controller="Inventory" asp-action="StockOverview">Inventory</a>
+                }
+                @if (User.HasClaim("permission", "Sales.View"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Sales" ? "active" : "")" asp-controller="Sales" asp-action="Index">Sales</a>
+                }
+                @if (User.HasClaim("permission", "Returns.View"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Returns" ? "active" : "")" asp-controller="Returns" asp-action="SalesReturns">Returns</a>
+                }
+                @if (User.HasClaim("permission", "Payments.View"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Payments" ? "active" : "")" asp-controller="Payments" asp-action="Receivables">Due &amp; Payments</a>
+                }
+                @if (User.HasClaim("permission", "Expenses.View"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Expenses" ? "active" : "")" asp-controller="Expenses" asp-action="Index">Expenses</a>
+                }
+                @if (User.HasClaim("permission", "CashDrawer.View"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "CashDrawer" ? "active" : "")" asp-controller="CashDrawer" asp-action="Index">Cash Drawer</a>
+                }
+                @if (User.HasClaim("permission", "Reports.View"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "active" : "")" asp-controller="Reports" asp-action="SalesReport">Reports</a>
+                }
+                @if (User.HasClaim("permission", "Backup.View"))
+                {
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Backup" ? "active" : "")" asp-controller="Backup" asp-action="Index">Backup</a>
+                }
+            </nav>
+            <div class="sidebar-footer text-white-50 small">
+                Module 14 &middot; Security &amp; Deployment
+            </div>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <header class="topbar d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-outline-secondary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarPanel" aria-controls="sidebarPanel">
+                    &#9776;
+                </button>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        @await RenderSectionAsync("Breadcrumb", required: false)
+                    </ol>
+                </nav>
+            </div>
+            <div class="topbar-meta d-flex align-items-center gap-3">
+                <span class="text-muted small">PharmaDesk v0.15.0</span>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    @await Component.InvokeAsync("NotificationBell")
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            @User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">Change Password</a></li>
+                            <li>
+                                <form asp-controller="Account" asp-action="Logout" method="post">
+                                    <button type="submit" class="dropdown-item">Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                }
+            </div>
+        </header>
+
+        <main class="content-area">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

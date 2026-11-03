@@ -1,0 +1,55 @@
+@model CustomerPaymentFormViewModel
+@{
+    ViewData["Title"] = "Record Customer Payment";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item"><a asp-action="Receivables">Accounts Receivable</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Record Payment</li>
+}
+
+<h1 class="h3 mb-4">Record Payment from @Model.CustomerName</h1>
+
+<div class="card-metric" style="max-width: 560px;">
+    <p>Current balance due: <strong>@Model.CurrentBalance.ToString("N2")</strong></p>
+
+    <form asp-action="RecordCustomerPayment" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+        <input type="hidden" asp-for="CustomerId" />
+        <input type="hidden" asp-for="CustomerName" />
+        <input type="hidden" asp-for="CurrentBalance" />
+
+        <div class="mb-3">
+            <label asp-for="Amount" class="form-label"></label>
+            <input asp-for="Amount" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="Amount" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PaymentMethod" class="form-label"></label>
+            <select asp-for="PaymentMethod" class="form-select">
+                <option value="Cash">Cash</option>
+                <option value="Card">Card</option>
+                <option value="Mobile Banking">Mobile Banking</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PaymentDate" class="form-label"></label>
+            <input asp-for="PaymentDate" class="form-control" type="date" />
+            <span asp-validation-for="PaymentDate" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Notes" class="form-label"></label>
+            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Payment</button>
+        <a class="btn btn-outline-secondary" asp-action="Receivables">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

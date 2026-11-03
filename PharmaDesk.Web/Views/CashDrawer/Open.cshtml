@@ -1,0 +1,47 @@
+@model CashDrawerOpenFormViewModel
+@{
+    ViewData["Title"] = "Open Cash Drawer";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item"><a asp-action="Index">Cash Drawer</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Open</li>
+}
+
+<h1 class="h3 mb-4">Open Cash Drawer Session</h1>
+
+<div class="card-metric" style="max-width: 560px;">
+    <form asp-action="Open" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+        <div class="mb-3">
+            <label asp-for="BranchId" class="form-label"></label>
+            <select asp-for="BranchId" class="form-select" asp-items="Model.AvailableBranches">
+                <option value="">-- Select --</option>
+            </select>
+            <span asp-validation-for="BranchId" class="text-danger small"></span>
+            @if (!Model.AvailableBranches.Any())
+            {
+                <div class="form-text text-danger">Every active branch already has an open session.</div>
+            }
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="OpeningCashAmount" class="form-label"></label>
+            <input asp-for="OpeningCashAmount" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="OpeningCashAmount" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Notes" class="form-label"></label>
+            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Open Session</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

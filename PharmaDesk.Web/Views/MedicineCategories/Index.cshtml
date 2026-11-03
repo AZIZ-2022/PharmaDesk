@@ -1,0 +1,60 @@
+@model List<MedicineCategoryListItemViewModel>
+@{
+    ViewData["Title"] = "Medicine Categories";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item"><a asp-controller="Medicines" asp-action="Index">Medicines</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Categories</li>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Medicine Categories</h1>
+    @if (User.HasClaim("permission", "Medicines.Manage"))
+    {
+        <a class="btn btn-primary" asp-action="Create">New Category</a>
+    }
+</div>
+
+<div class="card-metric p-0">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in Model)
+            {
+                <tr>
+                    <td>@category.Name</td>
+                    <td>@category.Description</td>
+                    <td>
+                        @if (category.IsActive)
+                        {
+                            <span class="badge text-bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-secondary">Deactivated</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        @if (User.HasClaim("permission", "Medicines.Manage"))
+                        {
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@category.Id">Edit</a>
+                            <form asp-action="ToggleActive" asp-route-id="@category.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm @(category.IsActive ? "btn-outline-danger" : "btn-outline-success")">
+                                    @(category.IsActive ? "Deactivate" : "Activate")
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,62 @@
+@model SalesReturnFormViewModel
+@{
+    ViewData["Title"] = "New Sales Return";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item"><a asp-controller="Sales" asp-action="Details" asp-route-id="@Model.SaleId">Sale #@Model.SaleId</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Return</li>
+}
+
+<h1 class="h3 mb-4">Return Item from Sale #@Model.SaleId</h1>
+
+<div class="card-metric" style="max-width: 560px;">
+    <p>
+        <strong>@Model.MedicineBrandName</strong><br />
+        Originally sold: @Model.OriginalQuantity.ToString("N2") @@ @Model.UnitPriceAtSale.ToString("N2") each
+    </p>
+
+    <form asp-action="NewSalesReturn" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+        <input type="hidden" asp-for="SaleItemId" />
+        <input type="hidden" asp-for="SaleId" />
+        <input type="hidden" asp-for="MedicineBrandName" />
+        <input type="hidden" asp-for="OriginalQuantity" />
+        <input type="hidden" asp-for="UnitPriceAtSale" />
+
+        <div class="mb-3">
+            <label asp-for="QuantityReturned" class="form-label"></label>
+            <input asp-for="QuantityReturned" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="QuantityReturned" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3 form-check">
+            <input asp-for="IsRestocked" class="form-check-input" />
+            <label asp-for="IsRestocked" class="form-check-label"></label>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Reason" class="form-label"></label>
+            <select asp-for="Reason" class="form-select">
+                <option value="">-- Select --</option>
+                <option value="Expired">Expired</option>
+                <option value="Damaged">Damaged</option>
+                <option value="Customer Changed Mind">Customer Changed Mind</option>
+                <option value="Other">Other</option>
+            </select>
+            <span asp-validation-for="Reason" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Notes" class="form-label"></label>
+            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Return</button>
+        <a class="btn btn-outline-secondary" asp-controller="Sales" asp-action="Details" asp-route-id="@Model.SaleId">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

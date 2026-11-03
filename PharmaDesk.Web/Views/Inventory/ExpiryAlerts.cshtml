@@ -1,0 +1,54 @@
+@model List<BatchListItemViewModel>
+@{
+    ViewData["Title"] = "Expiry Alerts";
+    var thresholdDays = ViewData["ThresholdDays"] as int? ?? 90;
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item"><a asp-action="StockOverview">Stock Overview</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Expiry Alerts</li>
+}
+
+<h1 class="h3 mb-2">Expiry Alerts</h1>
+<p class="text-muted">Batches with remaining stock that are already expired or expiring within @thresholdDays days.</p>
+
+<div class="card-metric p-0">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Medicine</th>
+                <th>Branch</th>
+                <th>Batch No.</th>
+                <th>Expiry</th>
+                <th class="text-end">Days Left</th>
+                <th class="text-end">Remaining</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var batch in Model)
+            {
+                <tr class="@(batch.IsExpired ? "table-danger" : "table-warning")">
+                    <td>@batch.MedicineBrandName</td>
+                    <td>@batch.BranchName</td>
+                    <td>@batch.BatchNumber</td>
+                    <td>@batch.ExpiryDate.ToString("yyyy-MM-dd")</td>
+                    <td class="text-end">@(batch.IsExpired ? "Expired" : batch.DaysUntilExpiry.ToString())</td>
+                    <td class="text-end">@batch.QuantityRemaining.ToString("N2")</td>
+                    <td class="text-end">
+                        @if (User.HasClaim("permission", "Inventory.Adjust"))
+                        {
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Adjust" asp-route-batchId="@batch.Id">Adjust</a>
+                        }
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">No batches are expired or nearing expiry.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

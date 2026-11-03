@@ -1,0 +1,47 @@
+@model CashDrawerCloseFormViewModel
+@{
+    ViewData["Title"] = "Close Cash Drawer";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item"><a asp-action="Index">Cash Drawer</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Close</li>
+}
+
+<h1 class="h3 mb-4">Close Cash Drawer Session &mdash; @Model.BranchName</h1>
+
+<div class="card-metric" style="max-width: 560px;">
+    <p>
+        Session date: @Model.SessionDate.ToString("yyyy-MM-dd")<br />
+        Opening cash: <strong>@Model.OpeningCashAmount.ToString("N2")</strong><br />
+        Expected closing cash (computed from today's cash sales, payments, and expenses):
+        <strong>@Model.ExpectedClosingCashAmount.ToString("N2")</strong>
+    </p>
+    <p class="text-muted small">
+        This expected figure does not include any cash refunds from sales/purchase returns, since those
+        don't record a cash/non-cash settlement method.
+    </p>
+
+    <form asp-action="Close" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+        <input type="hidden" asp-for="SessionId" />
+
+        <div class="mb-3">
+            <label asp-for="ClosingCashAmount" class="form-label"></label>
+            <input asp-for="ClosingCashAmount" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="ClosingCashAmount" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Notes" class="form-label"></label>
+            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Close Session</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

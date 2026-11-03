@@ -1,0 +1,37 @@
+@model ManufacturerFormViewModel
+@{
+    ViewData["Title"] = "Edit Manufacturer";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item"><a asp-controller="Medicines" asp-action="Index">Medicines</a></li>
+    <li class="breadcrumb-item"><a asp-action="Index">Manufacturers</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Edit</li>
+}
+
+<h1 class="h3 mb-4">Edit Manufacturer</h1>
+
+<div class="card-metric" style="max-width: 560px;">
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Country" class="form-label"></label>
+            <input asp-for="Country" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

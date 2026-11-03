@@ -1,0 +1,56 @@
+@model List<PurchaseListItemViewModel>
+@{
+    ViewData["Title"] = "Purchases";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">Purchases</li>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Purchases</h1>
+    @if (User.HasClaim("permission", "Purchases.Manage"))
+    {
+        <a class="btn btn-primary" asp-action="Create">New Purchase</a>
+    }
+</div>
+
+<div class="card-metric p-0">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Supplier</th>
+                <th>Branch</th>
+                <th>Invoice #</th>
+                <th class="text-end">Total</th>
+                <th class="text-end">Paid</th>
+                <th class="text-end">Due</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var purchase in Model)
+            {
+                <tr>
+                    <td>@purchase.PurchaseDate.ToString("yyyy-MM-dd")</td>
+                    <td>@purchase.SupplierName</td>
+                    <td>@purchase.BranchName</td>
+                    <td>@purchase.InvoiceNumber</td>
+                    <td class="text-end">@purchase.TotalAmount.ToString("N2")</td>
+                    <td class="text-end">@purchase.AmountPaid.ToString("N2")</td>
+                    <td class="text-end">@purchase.Due.ToString("N2")</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@purchase.Id">View</a>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">No purchases recorded yet.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

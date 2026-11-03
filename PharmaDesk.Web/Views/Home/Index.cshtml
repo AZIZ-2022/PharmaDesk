@@ -1,0 +1,137 @@
+﻿@model PharmaDesk.Web.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h1 class="h3 mb-0">Dashboard</h1>
+    @if (Model.IsDatabaseConnected)
+    {
+        <form method="get" class="d-flex gap-2">
+            <select name="branchId" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">-- All branches --</option>
+                @foreach (var branch in Model.AvailableBranches)
+                {
+                    <option value="@branch.Value" selected="@(Model.BranchId.HasValue && branch.Value == Model.BranchId.Value.ToString())">@branch.Text</option>
+                }
+            </select>
+        </form>
+    }
+</div>
+
+@if (Model.IsDatabaseConnected)
+{
+    <div class="status-banner status-ok mb-4">
+        <span class="status-dot ok"></span>
+        <div>
+            <strong>Database connected.</strong>
+            Current schema version: <strong>@(Model.CurrentSchemaVersion ?? "unknown")</strong>
+        </div>
+    </div>
+}
+else
+{
+    <div class="status-banner status-fail mb-4">
+        <span class="status-dot fail"></span>
+        <div>
+            <strong>Database not reachable.</strong>
+            Run <code>Database/PharmaDesk_Complete.sql</code> in SSMS against your SQL Server instance, then set
+            <code>ConnectionStrings:DefaultConnection</code> in <code>appsettings.Development.json</code>.
+            @if (!string.IsNullOrWhiteSpace(Model.DatabaseErrorMessage))
+            {
+                <div class="small text-muted mt-1">@Model.DatabaseErrorMessage</div>
+            }
+        </div>
+    </div>
+}
+
+@if (Model.IsDatabaseConnected)
+{
+    <div class="row g-3 mb-4">
+        @if (User.HasClaim("permission", "Sales.View"))
+        {
+            <div class="col-sm-6 col-lg-3">
+                <div class="card-metric">
+                    <div class="metric-label">Today's Revenue</div>
+                    <div class="metric-value">@Model.TodayRevenue.ToString("N2")</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card-metric">
+                    <div class="metric-label">This Month's Revenue</div>
+                    <div class="metric-value">@Model.MonthRevenue.ToString("N2")</div>
+                </div>
+            </div>
+        }
+        @if (User.HasClaim("permission", "Payments.View"))
+        {
+            <div class="col-sm-6 col-lg-3">
+                <div class="card-metric">
+                    <div class="metric-label">Total Receivable</div>
+                    <div class="metric-value">@Model.TotalReceivable.ToString("N2")</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card-metric">
+                    <div class="metric-label">Total Payable</div>
+                    <div class="metric-value">@Model.TotalPayable.ToString("N2")</div>
+                </div>
+            </div>
+        }
+        @if (User.HasClaim("permission", "Inventory.View"))
+        {
+            <div class="col-sm-6 col-lg-3">
+                <div class="card-metric">
+                    <div class="metric-label">Low Stock Medicines</div>
+                    <div class="metric-value">@Model.LowStockCount</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card-metric">
+                    <div class="metric-label">Expiring Soon (30 days)</div>
+                    <div class="metric-value">@Model.ExpiringSoonCount</div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (User.HasClaim("permission", "Sales.View"))
+    {
+        <div class="card-metric">
+            <div class="metric-label mb-2">Sales - Last 14 Days</div>
+            <canvas id="salesChart" height="90"></canvas>
+        </div>
+    }
+}
+
+@section Scripts {
+    @if (Model.IsDatabaseConnected && User.HasClaim("permission", "Sales.View"))
+    {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+        <script>
+            const ctx = document.getElementById('salesChart');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartLabels)),
+                    datasets: [{
+                        label: 'Revenue',
+                        data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartValues)),
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        </script>
+    }
+}

@@ -1,0 +1,100 @@
+@model List<ExpenseListItemViewModel>
+@{
+    ViewData["Title"] = "Expenses";
+    var categories = ViewData["AvailableCategories"] as List<SelectListItem> ?? new();
+    var fromDate = ViewData["FromDate"] as DateOnly?;
+    var toDate = ViewData["ToDate"] as DateOnly?;
+    var selectedCategoryId = ViewData["SelectedCategoryId"] as long?;
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">Expenses</li>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Expenses</h1>
+    <div class="d-flex gap-2">
+        @if (User.HasClaim("permission", "Expenses.Manage"))
+        {
+            <a class="btn btn-outline-secondary" asp-controller="ExpenseCategories" asp-action="Index">Categories</a>
+            <a class="btn btn-primary" asp-action="Create">New Expense</a>
+        }
+    </div>
+</div>
+
+<form method="get" class="mb-3 d-flex gap-2 align-items-end flex-wrap">
+    <div>
+        <label class="form-label small mb-0">From</label>
+        <input type="date" name="fromDate" class="form-control" value="@fromDate?.ToString("yyyy-MM-dd")" />
+    </div>
+    <div>
+        <label class="form-label small mb-0">To</label>
+        <input type="date" name="toDate" class="form-control" value="@toDate?.ToString("yyyy-MM-dd")" />
+    </div>
+    <div>
+        <label class="form-label small mb-0">Category</label>
+        <select name="categoryId" class="form-select">
+            <option value="">-- All categories --</option>
+            @foreach (var category in categories)
+            {
+                <option value="@category.Value" selected="@(selectedCategoryId.HasValue && category.Value == selectedCategoryId.Value.ToString())">@category.Text</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-outline-secondary">Filter</button>
+</form>
+
+<div class="card-metric p-0">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Branch</th>
+                <th class="text-end">Amount</th>
+                <th>Payment Method</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var expense in Model)
+            {
+                <tr>
+                    <td>@expense.ExpenseDate.ToString("yyyy-MM-dd")</td>
+                    <td>@expense.CategoryName</td>
+                    <td>@expense.BranchName</td>
+                    <td class="text-end">@expense.Amount.ToString("N2")</td>
+                    <td>@expense.PaymentMethod</td>
+                    <td>
+                        @if (expense.IsActive)
+                        {
+                            <span class="badge text-bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-secondary">Voided</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        @if (User.HasClaim("permission", "Expenses.Manage"))
+                        {
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@expense.Id">Edit</a>
+                            <form asp-action="ToggleActive" asp-route-id="@expense.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm @(expense.IsActive ? "btn-outline-danger" : "btn-outline-success")">
+                                    @(expense.IsActive ? "Void" : "Restore")
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">No expenses recorded yet.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

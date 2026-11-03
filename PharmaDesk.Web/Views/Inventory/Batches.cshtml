@@ -1,0 +1,84 @@
+@model List<BatchListItemViewModel>
+@{
+    ViewData["Title"] = "Batches";
+    var branches = ViewData["AvailableBranches"] as List<SelectListItem> ?? new();
+    var selectedBranchId = ViewData["SelectedBranchId"] as long?;
+    var showExhausted = ViewData["ShowExhausted"] as bool? ?? false;
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item"><a asp-action="StockOverview">Stock Overview</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Batches</li>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Batches</h1>
+</div>
+
+@if (TempData["StatusMessage"] is string status)
+{
+    <div class="alert alert-success py-2 small">@status</div>
+}
+
+<form method="get" class="mb-3 d-flex gap-2 align-items-end" style="max-width: 600px;">
+    <div class="flex-grow-1">
+        <label class="form-label small mb-0">Branch</label>
+        <select name="branchId" class="form-select">
+            <option value="">-- All branches --</option>
+            @foreach (var branch in branches)
+            {
+                <option value="@branch.Value" selected="@(selectedBranchId.HasValue && branch.Value == selectedBranchId.Value.ToString())">@branch.Text</option>
+            }
+        </select>
+    </div>
+    <div class="form-check mb-2">
+        <input type="checkbox" class="form-check-input" name="showExhausted" value="true" id="showExhausted" checked="@showExhausted" />
+        <label class="form-check-label" for="showExhausted">Show exhausted batches</label>
+    </div>
+    <button type="submit" class="btn btn-outline-secondary mb-2">Filter</button>
+</form>
+
+<div class="card-metric p-0">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Medicine</th>
+                <th>Branch</th>
+                <th>Supplier</th>
+                <th>Batch No.</th>
+                <th>Expiry</th>
+                <th class="text-end">Remaining</th>
+                <th class="text-end">Cost / unit</th>
+                <th class="text-end">Sale price / unit</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var batch in Model)
+            {
+                <tr class="@(batch.IsExpired ? "table-danger" : "")">
+                    <td>@batch.MedicineBrandName</td>
+                    <td>@batch.BranchName</td>
+                    <td>@batch.SupplierName</td>
+                    <td>@batch.BatchNumber</td>
+                    <td>@batch.ExpiryDate.ToString("yyyy-MM-dd")</td>
+                    <td class="text-end">@batch.QuantityRemaining.ToString("N2")</td>
+                    <td class="text-end">@batch.PurchaseCostPerBaseUnit.ToString("N2")</td>
+                    <td class="text-end">@batch.SellingPricePerBaseUnit.ToString("N2")</td>
+                    <td class="text-end">
+                        @if (User.HasClaim("permission", "Inventory.Adjust"))
+                        {
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Adjust" asp-route-batchId="@batch.Id">Adjust</a>
+                        }
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-4">No batches found.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

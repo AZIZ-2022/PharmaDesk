@@ -1,0 +1,64 @@
+@model List<UserListItemViewModel>
+@{
+    ViewData["Title"] = "Users";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">Users</li>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Users</h1>
+    @if (User.HasClaim("permission", "Users.Create"))
+    {
+        <a class="btn btn-primary" asp-action="Create">New User</a>
+    }
+</div>
+
+<div class="card-metric p-0">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Full name</th>
+                <th>Role(s)</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.UserName</td>
+                    <td>@user.FullName</td>
+                    <td>@string.Join(", ", user.Roles)</td>
+                    <td>
+                        @if (user.IsActive)
+                        {
+                            <span class="badge text-bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-secondary">Deactivated</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        @if (User.HasClaim("permission", "Users.Edit"))
+                        {
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@user.Id">Edit</a>
+                        }
+                        @if (User.HasClaim("permission", "Users.Deactivate"))
+                        {
+                            <form asp-action="ToggleActive" asp-route-id="@user.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm @(user.IsActive ? "btn-outline-danger" : "btn-outline-success")">
+                                    @(user.IsActive ? "Deactivate" : "Activate")
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,55 @@
+@model RoleEditViewModel
+@{
+    ViewData["Title"] = "New Role";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item"><a asp-action="Index">Roles</a></li>
+    <li class="breadcrumb-item active" aria-current="page">New</li>
+}
+
+<h1 class="h3 mb-4">New Role</h1>
+
+<div class="card-metric" style="max-width: 720px;">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <input asp-for="Description" class="form-control" />
+        </div>
+
+        <label class="form-label">Permissions</label>
+        <div class="permission-matrix mb-3">
+            @{
+                string? currentModule = null;
+            }
+            @for (var i = 0; i < Model.Permissions.Count; i++)
+            {
+                if (Model.Permissions[i].ModuleName != currentModule)
+                {
+                    currentModule = Model.Permissions[i].ModuleName;
+                    @:<div class="module-title">@currentModule</div>
+                }
+
+                <div class="form-check">
+                    <input type="hidden" asp-for="Permissions[i].PermissionId" />
+                    <input type="hidden" asp-for="Permissions[i].Code" />
+                    <input type="hidden" asp-for="Permissions[i].Name" />
+                    <input type="hidden" asp-for="Permissions[i].ModuleName" />
+                    <input class="form-check-input" type="checkbox" asp-for="Permissions[i].IsGranted" />
+                    <label class="form-check-label" asp-for="Permissions[i].IsGranted">@Model.Permissions[i].Name</label>
+                </div>
+            }
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+    </form>
+</div>

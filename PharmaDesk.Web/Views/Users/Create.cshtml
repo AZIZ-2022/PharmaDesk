@@ -1,0 +1,63 @@
+@model UserFormViewModel
+@{
+    ViewData["Title"] = "New User";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item"><a asp-action="Index">Users</a></li>
+    <li class="breadcrumb-item active" aria-current="page">New</li>
+}
+
+<h1 class="h3 mb-4">New User</h1>
+
+<div class="card-metric" style="max-width: 560px;">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+        <div class="mb-3">
+            <label asp-for="UserName" class="form-label"></label>
+            <input asp-for="UserName" class="form-control" />
+            <span asp-validation-for="UserName" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="FullName" class="form-label"></label>
+            <input asp-for="FullName" class="form-control" />
+            <span asp-validation-for="FullName" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger small"></span>
+            <div class="form-text">The user will be required to change this on first login.</div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="SelectedRoleId" class="form-label"></label>
+            <select asp-for="SelectedRoleId" asp-items="Model.AvailableRoles" class="form-select">
+                <option value="">-- No role --</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="SelectedBranchId" class="form-label"></label>
+            <select asp-for="SelectedBranchId" asp-items="Model.AvailableBranches" class="form-select">
+                <option value="">-- All branches --</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

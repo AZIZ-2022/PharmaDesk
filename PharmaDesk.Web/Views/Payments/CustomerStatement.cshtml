@@ -1,0 +1,56 @@
+@model StatementViewModel
+@{
+    ViewData["Title"] = "Customer Statement";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item"><a asp-action="Receivables">Accounts Receivable</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Statement</li>
+}
+
+<h1 class="h3 mb-4">Statement for @Model.PartyName</h1>
+
+<div class="card-metric mb-4">
+    <div class="row">
+        <div class="col-md-4"><strong>Opening Balance</strong><div>@Model.OpeningBalance.ToString("N2")</div></div>
+        <div class="col-md-4"><strong>Current Balance</strong><div>@Model.CurrentBalance.ToString("N2")</div></div>
+    </div>
+</div>
+
+<div class="card-metric p-0">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th class="text-end">Amount</th>
+                <th class="text-end">Running Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="3">Opening Balance</td>
+                <td class="text-end">@Model.OpeningBalance.ToString("N2")</td>
+            </tr>
+            @foreach (var entry in Model.Entries)
+            {
+                <tr>
+                    <td>@entry.Date.ToString("yyyy-MM-dd")</td>
+                    <td>@entry.Description</td>
+                    <td class="text-end">@entry.Amount.ToString("N2")</td>
+                    <td class="text-end">@entry.RunningBalance.ToString("N2")</td>
+                </tr>
+            }
+            @if (!Model.Entries.Any())
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">No transactions recorded yet.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-4">
+    <a class="btn btn-outline-secondary" asp-action="Receivables">Back to Accounts Receivable</a>
+</div>

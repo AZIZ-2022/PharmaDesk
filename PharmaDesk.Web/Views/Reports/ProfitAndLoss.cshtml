@@ -1,0 +1,45 @@
+@model ProfitAndLossViewModel
+@{
+    ViewData["Title"] = "Profit & Loss";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">Profit &amp; Loss</li>
+}
+
+<h1 class="h3 mb-4">Profit &amp; Loss</h1>
+
+<form method="get" class="mb-3 d-flex gap-2 align-items-end flex-wrap">
+    <div>
+        <label class="form-label small mb-0">From</label>
+        <input type="date" name="fromDate" class="form-control" value="@Model.FromDate.ToString("yyyy-MM-dd")" />
+    </div>
+    <div>
+        <label class="form-label small mb-0">To</label>
+        <input type="date" name="toDate" class="form-control" value="@Model.ToDate.ToString("yyyy-MM-dd")" />
+    </div>
+    <div>
+        <label class="form-label small mb-0">Branch</label>
+        <select name="branchId" class="form-select">
+            <option value="">-- All branches --</option>
+            @foreach (var branch in Model.AvailableBranches)
+            {
+                <option value="@branch.Value" selected="@(Model.BranchId.HasValue && branch.Value == Model.BranchId.Value.ToString())">@branch.Text</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-outline-secondary">Filter</button>
+</form>
+
+<p class="text-muted small">
+    COGS is calculated from the actual cost of the batches each sale drew from (not today's purchase
+    price). Expenses are active (non-voided) expense records dated within this period.
+</p>
+
+<div class="card-metric" style="max-width: 480px;">
+    <div class="row mb-2"><div class="col-7">Revenue</div><div class="col-5 text-end">@Model.Revenue.ToString("N2")</div></div>
+    <div class="row mb-2"><div class="col-7">Cost of Goods Sold (COGS)</div><div class="col-5 text-end">@Model.Cogs.ToString("N2")</div></div>
+    <div class="row mb-2 fw-bold border-top pt-2"><div class="col-7">Gross Profit</div><div class="col-5 text-end">@Model.GrossProfit.ToString("N2")</div></div>
+    <div class="row mb-2"><div class="col-7">Expenses</div><div class="col-5 text-end">@Model.Expenses.ToString("N2")</div></div>
+    <div class="row fw-bold border-top pt-2"><div class="col-7">Net Profit</div><div class="col-5 text-end">@Model.NetProfit.ToString("N2")</div></div>
+</div>

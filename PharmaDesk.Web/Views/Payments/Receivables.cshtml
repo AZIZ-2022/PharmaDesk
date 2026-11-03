@@ -1,0 +1,51 @@
+@model List<CustomerListItemViewModel>
+@{
+    ViewData["Title"] = "Accounts Receivable";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">Accounts Receivable</li>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Accounts Receivable</h1>
+    <a class="btn btn-outline-secondary" asp-action="Payables">Accounts Payable</a>
+</div>
+
+<p class="text-muted">Customers who currently owe the pharmacy money.</p>
+
+<div class="card-metric p-0">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Phone</th>
+                <th class="text-end">Balance Due</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var customer in Model)
+            {
+                <tr>
+                    <td>@customer.Name</td>
+                    <td>@customer.Phone</td>
+                    <td class="text-end">@customer.CurrentBalance.ToString("N2")</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="CustomerStatement" asp-route-customerId="@customer.Id">Statement</a>
+                        @if (User.HasClaim("permission", "Payments.Manage"))
+                        {
+                            <a class="btn btn-sm btn-primary" asp-action="RecordCustomerPayment" asp-route-customerId="@customer.Id">Record Payment</a>
+                        }
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">No customers currently have an outstanding balance.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,77 @@
+@model PurchaseDetailsViewModel
+@{
+    ViewData["Title"] = "Purchase Details";
+}
+
+@section Breadcrumb {
+    <li class="breadcrumb-item"><a asp-action="Index">Purchases</a></li>
+    <li class="breadcrumb-item active" aria-current="page">#@Model.Id</li>
+}
+
+<h1 class="h3 mb-4">Purchase #@Model.Id</h1>
+
+<div class="card-metric mb-4">
+    <div class="row">
+        <div class="col-md-3"><strong>Supplier</strong><div>@Model.SupplierName</div></div>
+        <div class="col-md-3"><strong>Branch</strong><div>@Model.BranchName</div></div>
+        <div class="col-md-3"><strong>Date</strong><div>@Model.PurchaseDate.ToString("yyyy-MM-dd")</div></div>
+        <div class="col-md-3"><strong>Invoice #</strong><div>@Model.InvoiceNumber</div></div>
+    </div>
+</div>
+
+<div class="card-metric p-0 mb-4">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Medicine</th>
+                <th>Batch No.</th>
+                <th>Expiry</th>
+                <th class="text-end">Qty (packs)</th>
+                <th class="text-end">Cost / pack</th>
+                <th class="text-end">Sale price / unit</th>
+                <th class="text-end">Line total</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.MedicineBrandName</td>
+                    <td>@item.BatchNumber</td>
+                    <td>@item.ExpiryDate.ToString("yyyy-MM-dd")</td>
+                    <td class="text-end">@item.QuantityPacks</td>
+                    <td class="text-end">@item.PurchasePricePerPack.ToString("N2")</td>
+                    <td class="text-end">@item.SellingPricePerBaseUnit.ToString("N2")</td>
+                    <td class="text-end">@item.LineTotal.ToString("N2")</td>
+                    <td class="text-end">
+                        @if (User.HasClaim("permission", "Returns.Manage"))
+                        {
+                            if (item.BatchQuantityRemaining > 0)
+                            {
+                                <a class="btn btn-sm btn-outline-secondary" asp-controller="Returns" asp-action="NewPurchaseReturn" asp-route-medicineBatchId="@item.MedicineBatchId">Return</a>
+                            }
+                            else
+                            {
+                                <span class="text-muted small">No stock left</span>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="card-metric" style="max-width: 420px; margin-left: auto;">
+    <div class="row mb-2"><div class="col-6">Subtotal</div><div class="col-6 text-end">@Model.SubTotal.ToString("N2")</div></div>
+    <div class="row mb-2"><div class="col-6">Discount</div><div class="col-6 text-end">@Model.DiscountAmount.ToString("N2")</div></div>
+    <div class="row mb-2"><div class="col-6">Tax / VAT</div><div class="col-6 text-end">@Model.TaxAmount.ToString("N2")</div></div>
+    <div class="row mb-2 fw-bold"><div class="col-6">Total</div><div class="col-6 text-end">@Model.TotalAmount.ToString("N2")</div></div>
+    <div class="row mb-2"><div class="col-6">Paid</div><div class="col-6 text-end">@Model.AmountPaid.ToString("N2")</div></div>
+    <div class="row fw-bold"><div class="col-6">Due</div><div class="col-6 text-end">@Model.Due.ToString("N2")</div></div>
+</div>
+
+<div class="mt-4">
+    <a class="btn btn-outline-secondary" asp-action="Index">Back to Purchases</a>
+</div>
