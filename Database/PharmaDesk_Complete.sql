@@ -368,7 +368,10 @@ BEGIN
         ALTER TABLE dbo.Users ADD TenantId BIGINT NULL;
         ALTER TABLE dbo.Users ADD BranchId BIGINT NULL;
 
-        UPDATE dbo.Users SET TenantId = @TenantId WHERE TenantId IS NULL;
+        EXEC sp_executesql
+        N'UPDATE dbo.Users SET TenantId = @TenantId WHERE TenantId IS NULL;',
+        N'@TenantId BIGINT',
+        @TenantId = @TenantId;
 
         ALTER TABLE dbo.Users ALTER COLUMN TenantId BIGINT NOT NULL;
 
