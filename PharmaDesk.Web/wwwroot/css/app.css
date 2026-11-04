@@ -25,18 +25,18 @@ body {
     margin-bottom: 1.5rem;
 }
 
-.sidebar-brand .brand-name {
-    display: block;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #fff;
-}
+    .sidebar-brand .brand-name {
+        display: block;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #fff;
+    }
 
-.sidebar-brand .brand-tag {
-    display: block;
-    font-size: .75rem;
-    color: rgba(255, 255, 255, .6);
-}
+    .sidebar-brand .brand-tag {
+        display: block;
+        font-size: .75rem;
+        color: rgba(255, 255, 255, .6);
+    }
 
 .sidebar-nav .nav-link {
     color: rgba(255, 255, 255, .75);
@@ -46,16 +46,16 @@ body {
     font-size: .95rem;
 }
 
-.sidebar-nav .nav-link:hover {
-    background-color: rgba(255, 255, 255, .08);
-    color: #fff;
-}
+    .sidebar-nav .nav-link:hover {
+        background-color: rgba(255, 255, 255, .08);
+        color: #fff;
+    }
 
-.sidebar-nav .nav-link.active {
-    background-color: var(--pharma-primary);
-    color: #fff;
-    font-weight: 500;
-}
+    .sidebar-nav .nav-link.active {
+        background-color: var(--pharma-primary);
+        color: #fff;
+        font-weight: 500;
+    }
 
 .sidebar-footer {
     margin-top: auto;
@@ -64,6 +64,23 @@ body {
 }
 
 @media (min-width: 768px) {
+    /* Bootstrap's own responsive offcanvas (.offcanvas-md) switches to
+       position: static and background-color: transparent at this breakpoint,
+       since it's designed to stop being an overlay and become part of normal
+       page flow. That's wrong for a permanent left-hand sidebar layout: without
+       re-asserting position/background here, the sidebar renders as a normal
+       block above the page content (pushing it down the page) instead of a
+       fixed column beside it, and its text becomes white-on-transparent =
+       nearly invisible against the light body background. */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        background-color: #10243e;
+        overflow-y: auto;
+    }
+
     .main-wrapper {
         margin-left: var(--sidebar-width);
     }
@@ -91,17 +108,17 @@ body {
     gap: .75rem;
 }
 
-.status-banner.status-ok {
-    background-color: #e6f4ea;
-    border: 1px solid #bfe3cb;
-    color: #1e6b3c;
-}
+    .status-banner.status-ok {
+        background-color: #e6f4ea;
+        border: 1px solid #bfe3cb;
+        color: #1e6b3c;
+    }
 
-.status-banner.status-fail {
-    background-color: #fdecea;
-    border: 1px solid #f6c6c1;
-    color: #9b2c21;
-}
+    .status-banner.status-fail {
+        background-color: #fdecea;
+        border: 1px solid #f6c6c1;
+        color: #9b2c21;
+    }
 
 .status-dot {
     width: 10px;
@@ -111,13 +128,13 @@ body {
     flex-shrink: 0;
 }
 
-.status-dot.ok {
-    background-color: #2e9e52;
-}
+    .status-dot.ok {
+        background-color: #2e9e52;
+    }
 
-.status-dot.fail {
-    background-color: #d64540;
-}
+    .status-dot.fail {
+        background-color: #d64540;
+    }
 
 .card-metric {
     border: 1px solid #e3e6ea;
@@ -126,19 +143,19 @@ body {
     padding: 1.25rem;
 }
 
-.card-metric .metric-label {
-    font-size: .8rem;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: .03em;
-}
+    .card-metric .metric-label {
+        font-size: .8rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: .03em;
+    }
 
-.card-metric .metric-value {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: #10243e;
-    margin-top: .25rem;
-}
+    .card-metric .metric-value {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: #10243e;
+        margin-top: .25rem;
+    }
 
 .auth-body {
     background-color: #10243e;
@@ -166,18 +183,18 @@ body {
     margin-bottom: 1.5rem;
 }
 
-.auth-brand .brand-name {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #10243e;
-}
+    .auth-brand .brand-name {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #10243e;
+    }
 
-.auth-brand .brand-tag {
-    display: block;
-    font-size: .8rem;
-    color: #6b7280;
-}
+    .auth-brand .brand-tag {
+        display: block;
+        font-size: .8rem;
+        color: #6b7280;
+    }
 
 .permission-matrix {
     max-height: 420px;
@@ -187,17 +204,17 @@ body {
     padding: 1rem;
 }
 
-.permission-matrix .module-group + .module-group {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #e3e6ea;
-}
+    .permission-matrix .module-group + .module-group {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e3e6ea;
+    }
 
-.permission-matrix .module-title {
-    font-size: .8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .03em;
-    color: #6b7280;
-    margin-bottom: .5rem;
-}
+    .permission-matrix .module-title {
+        font-size: .8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .03em;
+        color: #6b7280;
+        margin-bottom: .5rem;
+    }
