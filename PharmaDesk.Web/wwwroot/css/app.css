@@ -63,22 +63,21 @@ body {
     border-top: 1px solid rgba(255, 255, 255, .1);
 }
 
+/* ETA NOTUN CODE (TO) */
 @media (min-width: 768px) {
-    /* Bootstrap's own responsive offcanvas (.offcanvas-md) switches to
-       position: static and background-color: transparent at this breakpoint,
-       since it's designed to stop being an overlay and become part of normal
-       page flow. That's wrong for a permanent left-hand sidebar layout: without
-       re-asserting position/background here, the sidebar renders as a normal
-       block above the page content (pushing it down the page) instead of a
-       fixed column beside it, and its text becomes white-on-transparent =
-       nearly invisible against the light body background. */
     .sidebar {
-        position: fixed;
+        position: fixed !important;
         top: 0;
         left: 0;
         bottom: 0;
-        background-color: #10243e;
+        background-color: #10243e !important;
         overflow-y: auto;
+        /* Bootstrap offcanvas override fix */
+        display: block !important;
+        visibility: visible !important;
+        transform: none !important;
+        width: var(--sidebar-width) !important;
+        z-index: 1030;
     }
 
     .main-wrapper {
