@@ -4,51 +4,104 @@
 }
 
 @section Breadcrumb {
-    <li class="breadcrumb-item"><a asp-action="Index">Suppliers</a></li>
+    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Suppliers</a></li>
     <li class="breadcrumb-item active" aria-current="page">New</li>
 }
 
-<h1 class="h3 mb-4">New Supplier</h1>
+<style>
+    .form-card {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); padding: 32px;
+        max-width: 720px; margin-top: 10px;
+    }
+    .form-label { font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px; }
+    .form-control {
+        border-radius: 10px; border: 1.5px solid #e2e8f0; padding: 10px 14px;
+        font-size: 0.95rem; transition: all 0.2s;
+    }
+    .form-control:focus {
+        border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+    .form-text { font-size: 0.78rem; color: #64748b; margin-top: 4px; }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+        border: none; border-radius: 10px; padding: 10px 24px; font-weight: 600;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); transition: all 0.2s;
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); color: #fff; }
+    .btn-cancel {
+        background: #f1f5f9; color: #475569; border: none; border-radius: 10px;
+        padding: 10px 24px; font-weight: 600; transition: all 0.2s;
+    }
+    .btn-cancel:hover { background: #e2e8f0; color: #0f172a; }
 
-<div class="card-metric" style="max-width: 640px;">
+    .section-divider {
+        display: flex; align-items: center; gap: 12px;
+        margin: 28px 0 18px; color: #94a3b8; font-size: 0.75rem;
+        font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .section-divider::before, .section-divider::after {
+        content: ''; flex: 1; height: 1px; background: #e2e8f0;
+    }
+    .section-divider:first-child { margin-top: 0; }
+</style>
+
+<div class="mb-4">
+    <h1 class="h3 fw-bold mb-1" style="color:#0f172a;">Create New Supplier</h1>
+    <p class="text-muted small mb-0">Add a new supplier to your pharmacy network.</p>
+</div>
+
+<div class="form-card">
     <form asp-action="Create" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3 p-2 bg-danger-subtle rounded"></div>
+
+        <!-- Section 1: Basic Info -->
+        <div class="section-divider">Supplier Information</div>
 
         <div class="mb-3">
             <label asp-for="Name" class="form-label"></label>
-            <input asp-for="Name" class="form-control" />
+            <input asp-for="Name" class="form-control" placeholder="e.g. Square Pharmaceuticals Ltd." />
             <span asp-validation-for="Name" class="text-danger small"></span>
         </div>
 
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label asp-for="ContactPerson" class="form-label"></label>
-                <input asp-for="ContactPerson" class="form-control" />
+                <input asp-for="ContactPerson" class="form-control" placeholder="e.g. Mr. Rahman" />
             </div>
             <div class="col-md-6 mb-3">
                 <label asp-for="Phone" class="form-label"></label>
-                <input asp-for="Phone" class="form-control" />
+                <input asp-for="Phone" class="form-control" placeholder="+880 1XXX-XXXXXX" />
             </div>
         </div>
 
+        <!-- Section 2: Contact Details -->
+        <div class="section-divider">Contact Details</div>
+
         <div class="mb-3">
             <label asp-for="Email" class="form-label"></label>
-            <input asp-for="Email" class="form-control" />
+            <input asp-for="Email" class="form-control" placeholder="supplier@example.com" />
         </div>
 
         <div class="mb-3">
             <label asp-for="Address" class="form-label"></label>
-            <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+            <textarea asp-for="Address" class="form-control" rows="2" placeholder="Full address of the supplier"></textarea>
         </div>
 
-        <div class="mb-3">
+        <!-- Section 3: Financial -->
+        <div class="section-divider">Financial</div>
+
+        <div class="mb-4">
             <label asp-for="OpeningBalance" class="form-label"></label>
-            <input asp-for="OpeningBalance" class="form-control" type="number" step="0.01" />
+            <input asp-for="OpeningBalance" class="form-control" type="number" step="0.01" placeholder="0.00" />
             <span asp-validation-for="OpeningBalance" class="text-danger small"></span>
         </div>
 
-        <button type="submit" class="btn btn-primary">Create</button>
-        <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+        <div class="d-flex gap-2 pt-3 border-top">
+            <button type="submit" class="btn btn-save">Create Supplier</button>
+            <a class="btn btn-cancel" asp-action="Index">Cancel</a>
+        </div>
     </form>
 </div>
 

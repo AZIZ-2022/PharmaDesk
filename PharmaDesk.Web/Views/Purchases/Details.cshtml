@@ -4,74 +4,163 @@
 }
 
 @section Breadcrumb {
-    <li class="breadcrumb-item"><a asp-action="Index">Purchases</a></li>
+    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Purchases</a></li>
     <li class="breadcrumb-item active" aria-current="page">#@Model.Id</li>
 }
 
-<h1 class="h3 mb-4">Purchase #@Model.Id</h1>
+<style>
+    .info-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 20px;
+    }
+    .info-item { padding: 8px 0; }
+    .info-label {
+        font-size: 0.7rem; font-weight: 700; color: #64748b;
+        text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+    }
+    .info-value { font-size: 0.95rem; font-weight: 600; color: #0f172a; }
 
-<div class="card-metric mb-4">
-    <div class="row">
-        <div class="col-md-3"><strong>Supplier</strong><div>@Model.SupplierName</div></div>
-        <div class="col-md-3"><strong>Branch</strong><div>@Model.BranchName</div></div>
-        <div class="col-md-3"><strong>Date</strong><div>@Model.PurchaseDate.ToString("yyyy-MM-dd")</div></div>
-        <div class="col-md-3"><strong>Invoice #</strong><div>@Model.InvoiceNumber</div></div>
+    .card-panel {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); padding: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .items-table { width: 100%; margin-bottom: 0; }
+    .items-table th {
+        font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase;
+        letter-spacing: 0.5px; padding: 12px 16px; border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc; white-space: nowrap;
+    }
+    .items-table td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+
+    .totals-box { max-width: 420px; margin-left: auto; }
+    .totals-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 0.9rem; color: #475569; }
+    .totals-row.divider { border-top: 1px dashed #e2e8f0; margin-top: 8px; padding-top: 16px; }
+    .totals-row.grand-total { font-size: 1.1rem; font-weight: 800; color: #0f172a; }
+    .totals-row.due-row { background: #fef2f2; color: #dc2626; font-weight: 700; padding: 12px; border-radius: 10px; margin-top: 8px; }
+
+    .btn-return {
+        padding: 6px 14px; font-size: 0.8rem; font-weight: 600; border-radius: 8px;
+        text-decoration: none; transition: all 0.2s;
+        background: #fef3c7; color: #b45309 !important; border: 1px solid #fcd34d;
+    }
+    .btn-return:hover { background: #fde68a; color: #92400e !important; }
+
+    .btn-back {
+        background: #f1f5f9; color: #475569 !important; border: 1px solid #e2e8f0;
+        border-radius: 10px; padding: 10px 20px; font-weight: 600; font-size: 0.9rem;
+        transition: all 0.2s; text-decoration: none;
+    }
+    .btn-back:hover { background: #e2e8f0; color: #0f172a !important; }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="h3 fw-bold mb-1" style="color:#0f172a;">Purchase #@Model.Id</h1>
+        <p class="text-muted small mb-0">View detailed information about this purchase.</p>
     </div>
 </div>
 
-<div class="card-metric p-0 mb-4">
-    <table class="table mb-0">
-        <thead>
-            <tr>
-                <th>Medicine</th>
-                <th>Batch No.</th>
-                <th>Expiry</th>
-                <th class="text-end">Qty (packs)</th>
-                <th class="text-end">Cost / pack</th>
-                <th class="text-end">Sale price / unit</th>
-                <th class="text-end">Line total</th>
-                <th class="text-end">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Items)
-            {
-                <tr>
-                    <td>@item.MedicineBrandName</td>
-                    <td>@item.BatchNumber</td>
-                    <td>@item.ExpiryDate.ToString("yyyy-MM-dd")</td>
-                    <td class="text-end">@item.QuantityPacks</td>
-                    <td class="text-end">@item.PurchasePricePerPack.ToString("N2")</td>
-                    <td class="text-end">@item.SellingPricePerBaseUnit.ToString("N2")</td>
-                    <td class="text-end">@item.LineTotal.ToString("N2")</td>
-                    <td class="text-end">
-                        @if (User.HasClaim("permission", "Returns.Manage"))
-                        {
-                            if (item.BatchQuantityRemaining > 0)
-                            {
-                                <a class="btn btn-sm btn-outline-secondary" asp-controller="Returns" asp-action="NewPurchaseReturn" asp-route-medicineBatchId="@item.MedicineBatchId">Return</a>
-                            }
-                            else
-                            {
-                                <span class="text-muted small">No stock left</span>
-                            }
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<!-- Purchase Info -->
+<div class="card-panel">
+    <div class="info-grid">
+        <div class="info-item">
+            <div class="info-label">Supplier</div>
+            <div class="info-value">@Model.SupplierName</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Branch</div>
+            <div class="info-value">@Model.BranchName</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Purchase Date</div>
+            <div class="info-value">@Model.PurchaseDate.ToString("dd MMM yyyy")</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Invoice Number</div>
+            <div class="info-value">
+                <span class="badge bg-light text-dark border" style="font-family:monospace; font-size:0.85rem;">@Model.InvoiceNumber</span>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="card-metric" style="max-width: 420px; margin-left: auto;">
-    <div class="row mb-2"><div class="col-6">Subtotal</div><div class="col-6 text-end">@Model.SubTotal.ToString("N2")</div></div>
-    <div class="row mb-2"><div class="col-6">Discount</div><div class="col-6 text-end">@Model.DiscountAmount.ToString("N2")</div></div>
-    <div class="row mb-2"><div class="col-6">Tax / VAT</div><div class="col-6 text-end">@Model.TaxAmount.ToString("N2")</div></div>
-    <div class="row mb-2 fw-bold"><div class="col-6">Total</div><div class="col-6 text-end">@Model.TotalAmount.ToString("N2")</div></div>
-    <div class="row mb-2"><div class="col-6">Paid</div><div class="col-6 text-end">@Model.AmountPaid.ToString("N2")</div></div>
-    <div class="row fw-bold"><div class="col-6">Due</div><div class="col-6 text-end">@Model.Due.ToString("N2")</div></div>
+<!-- Items -->
+<div class="card-panel p-0">
+    <div class="table-responsive">
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Medicine</th>
+                    <th>Batch No.</th>
+                    <th>Expiry</th>
+                    <th class="text-end">Qty (packs)</th>
+                    <th class="text-end">Cost / pack</th>
+                    <th class="text-end">Sale / unit</th>
+                    <th class="text-end">Line Total</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td class="fw-semibold text-dark">@item.MedicineBrandName</td>
+                        <td><span class="badge bg-light text-dark border" style="font-family:monospace;">@item.BatchNumber</span></td>
+                        <td class="text-muted">@item.ExpiryDate.ToString("dd MMM yyyy")</td>
+                        <td class="text-end">@item.QuantityPacks</td>
+                        <td class="text-end">৳ @item.PurchasePricePerPack.ToString("N2")</td>
+                        <td class="text-end">৳ @item.SellingPricePerBaseUnit.ToString("N2")</td>
+                        <td class="text-end fw-bold">৳ @item.LineTotal.ToString("N2")</td>
+                        <td class="text-end">
+                            @if (User.HasClaim("permission", "Returns.Manage"))
+                            {
+                                if (item.BatchQuantityRemaining > 0)
+                                {
+                                    <a class="btn-return" asp-controller="Returns" asp-action="NewPurchaseReturn" asp-route-medicineBatchId="@item.MedicineBatchId">Return</a>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary border px-2 py-1">Out of Stock</span>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Totals -->
+<div class="totals-box">
+    <div class="totals-row">
+        <span>Subtotal</span>
+        <span class="fw-semibold">৳ @Model.SubTotal.ToString("N2")</span>
+    </div>
+    <div class="totals-row">
+        <span>Discount</span>
+        <span class="text-danger">- ৳ @Model.DiscountAmount.ToString("N2")</span>
+    </div>
+    <div class="totals-row">
+        <span>Tax / VAT</span>
+        <span>+ ৳ @Model.TaxAmount.ToString("N2")</span>
+    </div>
+    <div class="totals-row divider grand-total">
+        <span>Total</span>
+        <span>৳ @Model.TotalAmount.ToString("N2")</span>
+    </div>
+    <div class="totals-row">
+        <span>Amount Paid</span>
+        <span class="text-success fw-semibold">৳ @Model.AmountPaid.ToString("N2")</span>
+    </div>
+    <div class="totals-row due-row">
+        <span>Due</span>
+        <span>৳ @Model.Due.ToString("N2")</span>
+    </div>
 </div>
 
 <div class="mt-4">
-    <a class="btn btn-outline-secondary" asp-action="Index">Back to Purchases</a>
+    <a class="btn-back" asp-action="Index">← Back to Purchases</a>
 </div>

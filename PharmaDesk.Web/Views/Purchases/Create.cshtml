@@ -4,16 +4,80 @@
 }
 
 @section Breadcrumb {
-    <li class="breadcrumb-item"><a asp-action="Index">Purchases</a></li>
+    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Purchases</a></li>
     <li class="breadcrumb-item active" aria-current="page">New</li>
 }
 
-<h1 class="h3 mb-4">New Purchase</h1>
+<style>
+    .form-label { font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 6px; }
+    .form-control, .form-select {
+        border-radius: 10px; border: 1.5px solid #e2e8f0; padding: 10px 14px;
+        font-size: 0.9rem; transition: all 0.2s;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+    .card-panel {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); padding: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .items-table { width: 100%; margin-bottom: 0; }
+    .items-table th {
+        font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase;
+        letter-spacing: 0.5px; padding: 12px 8px; border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc; white-space: nowrap;
+    }
+    .items-table td { padding: 8px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    .items-table .form-control-sm, .items-table .form-select-sm { font-size: 0.85rem; padding: 8px 10px; border-radius: 8px; }
+    
+    .pack-hint { font-size: 0.7rem; color: #64748b; margin-top: 4px; line-height: 1.3; }
+    
+    .line-total-display {
+        font-weight: 700; color: #0f172a; text-align: right; font-size: 0.9rem; padding-right: 12px;
+    }
+    
+    .totals-box {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); padding: 24px;
+        max-width: 420px; margin-left: auto;
+    }
+    .totals-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 0.9rem; color: #475569; }
+    .totals-row.divider { border-top: 1px dashed #e2e8f0; margin-top: 8px; padding-top: 16px; }
+    .totals-row.grand-total { font-size: 1.1rem; font-weight: 800; color: #0f172a; }
+    .totals-row.due-row { background: #fef2f2; color: #dc2626; font-weight: 700; padding: 12px; border-radius: 10px; margin-top: 8px; }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+        border: none; border-radius: 10px; padding: 12px 28px; font-weight: 600;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); transition: all 0.2s;
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); color: #fff; }
+    .btn-cancel {
+        background: #f1f5f9; color: #475569; border: none; border-radius: 10px;
+        padding: 12px 24px; font-weight: 600; transition: all 0.2s;
+    }
+    .btn-cancel:hover { background: #e2e8f0; color: #0f172a; }
+    
+    .btn-add-line {
+        background: #eff6ff; color: #2563eb; border: 1.5px dashed #bfdbfe;
+        border-radius: 10px; padding: 10px 18px; font-weight: 600; font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+    .btn-add-line:hover { background: #dbeafe; border-color: #93c5fd; }
+</style>
+
+<div class="mb-4">
+    <h1 class="h3 fw-bold mb-1" style="color:#0f172a;">New Purchase</h1>
+    <p class="text-muted small mb-0">Record a new stock purchase from a supplier.</p>
+</div>
 
 <form asp-action="Create" method="post" id="purchaseForm">
-    <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3 p-2 bg-danger-subtle rounded"></div>
 
-    <div class="card-metric mb-4">
+    <!-- Header Info -->
+    <div class="card-panel">
         <div class="row">
             <div class="col-md-3 mb-3">
                 <label asp-for="SupplierId" class="form-label"></label>
@@ -36,73 +100,68 @@
             </div>
             <div class="col-md-3 mb-3">
                 <label asp-for="InvoiceNumber" class="form-label"></label>
-                <input asp-for="InvoiceNumber" class="form-control" />
+                <input asp-for="InvoiceNumber" class="form-control" placeholder="e.g. INV-001" />
             </div>
         </div>
     </div>
 
-    <div class="card-metric p-0 mb-4">
-        <table class="table mb-0" id="itemsTable">
-            <thead>
-                <tr>
-                    <th style="min-width: 200px;">Medicine</th>
-                    <th>Batch No.</th>
-                    <th>Expiry</th>
-                    <th style="width: 120px;">Qty (packs)</th>
-                    <th style="width: 140px;">Cost / pack</th>
-                    <th style="width: 140px;">Sale price / unit</th>
-                    <th style="width: 120px;">Line total</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="itemsBody"></tbody>
-        </table>
-        <div class="p-3">
-            <button type="button" class="btn btn-outline-primary btn-sm" id="addLineButton">+ Add line</button>
+    <!-- Items Table -->
+    <div class="card-panel p-0">
+        <div class="table-responsive">
+            <table class="items-table" id="itemsTable">
+                <thead>
+                    <tr>
+                        <th style="min-width: 220px;">Medicine</th>
+                        <th style="min-width: 110px;">Batch No.</th>
+                        <th style="min-width: 130px;">Expiry</th>
+                        <th style="width: 110px;">Qty (packs)</th>
+                        <th style="width: 130px;">Cost / pack</th>
+                        <th style="width: 150px;">Sale / unit</th>
+                        <th style="width: 110px;" class="text-end">Total</th>
+                        <th style="width: 40px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="itemsBody"></tbody>
+            </table>
+        </div>
+        <div class="p-3 border-top">
+            <button type="button" class="btn-add-line" id="addLineButton">+ Add Medicine Line</button>
         </div>
     </div>
 
-    <div class="card-metric mb-4" style="max-width: 420px; margin-left: auto;">
-        <div class="row mb-2">
-            <div class="col-6">Subtotal</div>
-            <div class="col-6 text-end" id="subTotalDisplay">0.00</div>
+    <!-- Totals -->
+    <div class="totals-box">
+        <div class="totals-row">
+            <span>Subtotal</span>
+            <span class="fw-bold" id="subTotalDisplay">৳ 0.00</span>
         </div>
-        <div class="row mb-2 align-items-center">
-            <div class="col-6">
-                <label asp-for="DiscountAmount" class="form-label mb-0"></label>
-            </div>
-            <div class="col-6">
-                <input asp-for="DiscountAmount" class="form-control form-control-sm text-end amount-input" type="number" step="0.01" />
-            </div>
+        <div class="totals-row align-items-center">
+            <label asp-for="DiscountAmount" class="form-label mb-0">Discount</label>
+            <input asp-for="DiscountAmount" class="form-control form-control-sm text-end amount-input" type="number" step="0.01" style="max-width: 120px;" />
         </div>
-        <div class="row mb-2 align-items-center">
-            <div class="col-6">
-                <label asp-for="TaxAmount" class="form-label mb-0"></label>
-            </div>
-            <div class="col-6">
-                <input asp-for="TaxAmount" class="form-control form-control-sm text-end amount-input" type="number" step="0.01" />
-            </div>
+        <div class="totals-row align-items-center">
+            <label asp-for="TaxAmount" class="form-label mb-0">Tax / VAT</label>
+            <input asp-for="TaxAmount" class="form-control form-control-sm text-end amount-input" type="number" step="0.01" style="max-width: 120px;" />
         </div>
-        <div class="row mb-2 fw-bold">
-            <div class="col-6">Total</div>
-            <div class="col-6 text-end" id="totalDisplay">0.00</div>
+        <div class="totals-row divider grand-total">
+            <span>Total</span>
+            <span id="totalDisplay">৳ 0.00</span>
         </div>
-        <div class="row mb-2 align-items-center">
-            <div class="col-6">
-                <label asp-for="AmountPaid" class="form-label mb-0"></label>
-            </div>
-            <div class="col-6">
-                <input asp-for="AmountPaid" class="form-control form-control-sm text-end amount-input" type="number" step="0.01" />
-            </div>
+        <div class="totals-row align-items-center" style="padding-top: 12px;">
+            <label asp-for="AmountPaid" class="form-label mb-0">Amount Paid</label>
+            <input asp-for="AmountPaid" class="form-control form-control-sm text-end amount-input" type="number" step="0.01" style="max-width: 120px;" />
         </div>
-        <div class="row fw-bold">
-            <div class="col-6">Due to supplier</div>
-            <div class="col-6 text-end" id="dueDisplay">0.00</div>
+        <div class="totals-row due-row">
+            <span>Due to Supplier</span>
+            <span id="dueDisplay">৳ 0.00</span>
         </div>
     </div>
 
-    <button type="submit" class="btn btn-primary">Save Purchase</button>
-    <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+    <!-- Actions -->
+    <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-save">Save Purchase</button>
+        <a class="btn btn-cancel" asp-action="Index">Cancel</a>
+    </div>
 </form>
 
 <template id="itemRowTemplate">
@@ -117,13 +176,13 @@
             </select>
             <div class="form-text pack-hint"></div>
         </td>
-        <td><input type="text" class="form-control form-control-sm" data-field="BatchNumber" /></td>
+        <td><input type="text" class="form-control form-control-sm" data-field="BatchNumber" placeholder="B-123" /></td>
         <td><input type="date" class="form-control form-control-sm" data-field="ExpiryDate" /></td>
-        <td><input type="number" step="0.01" class="form-control form-control-sm qty-input" data-field="QuantityPacks" /></td>
-        <td><input type="number" step="0.01" class="form-control form-control-sm cost-input" data-field="PurchasePricePerPack" /></td>
-        <td><input type="number" step="0.01" class="form-control form-control-sm" data-field="SellingPricePerBaseUnit" /></td>
-        <td class="line-total-display align-middle">0.00</td>
-        <td><button type="button" class="btn btn-sm btn-outline-danger remove-row-button">&times;</button></td>
+        <td><input type="number" step="0.01" class="form-control form-control-sm qty-input text-end" data-field="QuantityPacks" placeholder="0" /></td>
+        <td><input type="number" step="0.01" class="form-control form-control-sm cost-input text-end" data-field="PurchasePricePerPack" placeholder="0.00" /></td>
+        <td><input type="number" step="0.01" class="form-control form-control-sm text-end" data-field="SellingPricePerBaseUnit" placeholder="0.00" /></td>
+        <td class="line-total-display">0.00</td>
+        <td><button type="button" class="btn btn-sm btn-outline-danger remove-row-button" style="border-radius:8px;">&times;</button></td>
     </tr>
 </template>
 
@@ -162,7 +221,7 @@
                     if (option && option.value) {
                         var packSize = parseFloat(option.getAttribute('data-packsize')) || 0;
                         var baseUnits = qty * packSize;
-                        hint.textContent = '1 ' + option.getAttribute('data-packunit') + ' = ' + packSize + ' ' + option.getAttribute('data-baseunit') + '(s) → ' + baseUnits.toFixed(2) + ' ' + option.getAttribute('data-baseunit') + '(s) total';
+                        hint.textContent = '1 ' + option.getAttribute('data-packunit') + ' = ' + packSize + ' ' + option.getAttribute('data-baseunit') + '(s) → ' + baseUnits.toFixed(2) + ' ' + option.getAttribute('data-baseunit') + '(s)';
                     } else {
                         hint.textContent = '';
                     }
@@ -173,9 +232,9 @@
                 var paid = parseFloat(paidInput.value) || 0;
                 var total = subTotal - discount + tax;
 
-                document.getElementById('subTotalDisplay').textContent = subTotal.toFixed(2);
-                document.getElementById('totalDisplay').textContent = total.toFixed(2);
-                document.getElementById('dueDisplay').textContent = (total - paid).toFixed(2);
+                document.getElementById('subTotalDisplay').textContent = '৳ ' + subTotal.toFixed(2);
+                document.getElementById('totalDisplay').textContent = '৳ ' + total.toFixed(2);
+                document.getElementById('dueDisplay').textContent = '৳ ' + (total - paid).toFixed(2);
             }
 
             function addRow() {
