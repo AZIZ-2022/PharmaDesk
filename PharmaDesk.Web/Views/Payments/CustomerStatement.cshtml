@@ -4,53 +4,110 @@
 }
 
 @section Breadcrumb {
-    <li class="breadcrumb-item"><a asp-action="Receivables">Accounts Receivable</a></li>
+    <li class="breadcrumb-item"><a asp-action="Receivables" class="text-decoration-none text-muted">Accounts Receivable</a></li>
     <li class="breadcrumb-item active" aria-current="page">Statement</li>
 }
 
-<h1 class="h3 mb-4">Statement for @Model.PartyName</h1>
+<style>
+    .summary-card {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        border-radius: 16px; padding: 28px; color: #fff;
+        box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.3);
+        margin-bottom: 24px;
+    }
+    .summary-label { font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .summary-value { font-size: 1.75rem; font-weight: 800; color: #fff; }
+    .summary-value.accent { color: #a5b4fc; }
 
-<div class="card-metric mb-4">
+    .table-custom-wrapper {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); overflow: hidden;
+    }
+    .table-custom { width: 100%; margin-bottom: 0; border-collapse: collapse; }
+    .table-custom thead { background: #f8fafc; }
+    .table-custom th {
+        font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;
+        letter-spacing: 0.5px; padding: 14px 20px; border-bottom: 1px solid #e2e8f0;
+    }
+    .table-custom td {
+        padding: 14px 20px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;
+        font-size: 0.9rem; color: #334155;
+    }
+    .table-custom tbody tr:hover { background: #f8fafc; }
+    .table-custom tr.opening-row { background: #f1f5f9; font-weight: 600; }
+
+    .amount-debit { color: #dc2626; font-weight: 700; }
+    .amount-credit { color: #059669; font-weight: 700; }
+    .balance-amount { font-weight: 700; color: #0f172a; }
+
+    .btn-back {
+        background: #f1f5f9; color: #475569 !important; border: 1px solid #e2e8f0;
+        border-radius: 10px; padding: 10px 20px; font-weight: 600; font-size: 0.9rem;
+        transition: all 0.2s; text-decoration: none; display: inline-block;
+    }
+    .btn-back:hover { background: #e2e8f0; color: #0f172a !important; }
+
+    .empty-state { padding: 40px 20px; text-align: center; color: #64748b; }
+</style>
+
+<div class="mb-4">
+    <h1 class="h3 fw-bold mb-1" style="color:#0f172a;">Statement: @Model.PartyName</h1>
+    <p class="text-muted small mb-0">Complete transaction history.</p>
+</div>
+
+<div class="summary-card">
     <div class="row">
-        <div class="col-md-4"><strong>Opening Balance</strong><div>@Model.OpeningBalance.ToString("N2")</div></div>
-        <div class="col-md-4"><strong>Current Balance</strong><div>@Model.CurrentBalance.ToString("N2")</div></div>
+        <div class="col-md-6 mb-3 mb-md-0">
+            <div class="summary-label">Opening Balance</div>
+            <div class="summary-value">৳ @Model.OpeningBalance.ToString("N2")</div>
+        </div>
+        <div class="col-md-6">
+            <div class="summary-label">Current Balance</div>
+            <div class="summary-value accent">৳ @Model.CurrentBalance.ToString("N2")</div>
+        </div>
     </div>
 </div>
 
-<div class="card-metric p-0">
-    <table class="table mb-0">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th class="text-end">Amount</th>
-                <th class="text-end">Running Balance</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td colspan="3">Opening Balance</td>
-                <td class="text-end">@Model.OpeningBalance.ToString("N2")</td>
-            </tr>
-            @foreach (var entry in Model.Entries)
-            {
+<div class="table-custom-wrapper">
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
                 <tr>
-                    <td>@entry.Date.ToString("yyyy-MM-dd")</td>
-                    <td>@entry.Description</td>
-                    <td class="text-end">@entry.Amount.ToString("N2")</td>
-                    <td class="text-end">@entry.RunningBalance.ToString("N2")</td>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th class="text-end">Amount</th>
+                    <th class="text-end">Running Balance</th>
                 </tr>
-            }
-            @if (!Model.Entries.Any())
-            {
-                <tr>
-                    <td colspan="4" class="text-center text-muted py-4">No transactions recorded yet.</td>
+            </thead>
+            <tbody>
+                <tr class="opening-row">
+                    <td>—</td>
+                    <td>Opening Balance</td>
+                    <td class="text-end">—</td>
+                    <td class="text-end balance-amount">৳ @Model.OpeningBalance.ToString("N2")</td>
                 </tr>
-            }
-        </tbody>
-    </table>
+                @foreach (var entry in Model.Entries)
+                {
+                    <tr>
+                        <td class="text-muted">@entry.Date.ToString("dd MMM yyyy")</td>
+                        <td>@entry.Description</td>
+                        <td class="text-end @(entry.Amount >= 0 ? "amount-debit" : "amount-credit")">
+                            ৳ @entry.Amount.ToString("N2")
+                        </td>
+                        <td class="text-end balance-amount">৳ @entry.RunningBalance.ToString("N2")</td>
+                    </tr>
+                }
+                @if (!Model.Entries.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="empty-state">No transactions recorded yet.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <div class="mt-4">
-    <a class="btn btn-outline-secondary" asp-action="Receivables">Back to Accounts Receivable</a>
+    <a class="btn-back" asp-action="Receivables">← Back to Accounts Receivable</a>
 </div>
