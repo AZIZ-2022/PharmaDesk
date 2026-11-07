@@ -6,16 +6,253 @@
     <title>@ViewData["Title"] - PharmaDesk</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
+    
+    <style>
+        /* =========================================
+           FULL SCREEN SPLIT LOGIN DESIGN
+           ========================================= */
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 100vh !important;
+            width: 100vw !important;
+            overflow: hidden !important;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif !important;
+        }
+
+        .login-container {
+            display: flex !important;
+            height: 100vh !important;
+            width: 100vw !important;
+        }
+
+        /* =========================================
+           LEFT SIDE: BRANDING PANEL (Full Height)
+           ========================================= */
+        .login-left {
+            flex: 1.2 !important;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%) !important;
+            position: relative !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            padding: 10% !important;
+            color: #fff !important;
+            overflow: hidden !important;
+        }
+
+        /* Left Side Decorations */
+        .blob {
+            position: absolute !important;
+            border-radius: 50% !important;
+            filter: blur(90px) !important;
+            opacity: 0.6 !important;
+            z-index: 0 !important;
+        }
+        .blob-1 { width: 500px !important; height: 500px !important; background: #6366f1 !important; top: -150px !important; left: -150px !important; }
+        .blob-2 { width: 400px !important; height: 400px !important; background: #ec4899 !important; bottom: -100px !important; right: -100px !important; opacity: 0.4 !important;}
+        
+        /* Left Side Content */
+        .brand-content {
+            position: relative !important;
+            z-index: 10 !important;
+            max-width: 500px !important;
+        }
+        
+        .brand-logo-icon {
+            width: 56px !important; height: 56px !important;
+            background: linear-gradient(135deg, #6366f1, #ec4899) !important;
+            border-radius: 16px !important;
+            display: flex !important; align-items: center !important; justify-content: center !important;
+            margin-bottom: 30px !important;
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.6) !important;
+        }
+        .brand-logo-icon svg { width: 28px !important; height: 28px !important; color: #fff !important; }
+
+        .brand-title { font-size: 3rem !important; font-weight: 800 !important; line-height: 1.1 !important; margin-bottom: 20px !important; color: #fff !important;}
+        .brand-title span { background: linear-gradient(to right, #818cf8, #f472b6) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; }
+        .brand-desc { font-size: 1.1rem !important; color: #cbd5e1 !important; line-height: 1.6 !important; margin-bottom: 40px !important; }
+
+        .feature-list { display: flex !important; flex-direction: column !important; gap: 20px !important; }
+        .feature-item { display: flex !important; align-items: center !important; gap: 15px !important; font-size: 1rem !important; color: #e2e8f0 !important; }
+        .feature-icon {
+            width: 32px !important; height: 32px !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 50% !important;
+            display: flex !important; align-items: center !important; justify-content: center !important;
+        }
+        .feature-icon svg { width: 16px !important; height: 16px !important; color: #818cf8 !important; }
+
+        /* =========================================
+           RIGHT SIDE: LOGIN FORM (Centered)
+           ========================================= */
+        .login-right {
+            flex: 1 !important;
+            background: #ffffff !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 40px !important;
+        }
+
+        .form-wrapper {
+            width: 100% !important;
+            max-width: 420px !important;
+            animation: slideUp 0.6s ease-out !important;
+        }
+
+        /* FIX: @@keyframes use kora hoyeche */
+        @@keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-header { margin-bottom: 40px !important; }
+        .form-header h2 { font-size: 2rem !important; font-weight: 700 !important; color: #0f172a !important; margin-bottom: 8px !important; }
+        .form-header p { color: #64748b !important; font-size: 0.95rem !important; margin: 0 !important; }
+
+        /* Inputs styling */
+        .input-group-custom { position: relative !important; margin-bottom: 24px !important; }
+        
+        .input-icon {
+            position: absolute !important; left: 16px !important; top: 50% !important; transform: translateY(-50%) !important;
+            color: #94a3b8 !important; display: flex !important; pointer-events: none !important; z-index: 2 !important;
+        }
+        .input-icon svg { width: 20px !important; height: 20px !important; }
+
+        .custom-input {
+            width: 100% !important;
+            height: 56px !important;
+            padding: 24px 16px 8px 48px !important;
+            border-radius: 12px !important;
+            border: 1.5px solid #e2e8f0 !important;
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            font-size: 1rem !important;
+            outline: none !important;
+            transition: all 0.2s ease !important;
+            box-shadow: none !important;
+        }
+        .custom-input::placeholder { color: transparent !important; }
+        .custom-input:focus {
+            border-color: #8b5cf6 !important;
+            background: #ffffff !important;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15) !important;
+        }
+
+        /* Floating Label */
+        .floating-label {
+            position: absolute !important; left: 48px !important; top: 50% !important; transform: translateY(-50%) !important;
+            color: #94a3b8 !important; font-size: 1rem !important; pointer-events: none !important; transition: all 0.2s ease !important;
+        }
+        .custom-input:focus ~ .floating-label,
+        .custom-input:not(:placeholder-shown) ~ .floating-label {
+            top: 16px !important; font-size: 0.75rem !important; color: #8b5cf6 !important; font-weight: 600 !important;
+        }
+
+        /* Password Toggle */
+        .toggle-password {
+            position: absolute !important; right: 14px !important; top: 50% !important; transform: translateY(-50%) !important;
+            background: none !important; border: none !important; color: #94a3b8 !important; cursor: pointer !important; padding: 8px !important; display: flex !important; z-index: 3 !important;
+        }
+        .toggle-password:hover { color: #8b5cf6 !important; }
+        .toggle-password svg { width: 20px !important; height: 20px !important; }
+
+        /* Checkbox & Links */
+        .custom-check .form-check-input {
+            background-color: #f8fafc !important;
+            border: 1.5px solid #cbd5e1 !important;
+            width: 18px !important; height: 18px !important; cursor: pointer !important; margin-top: 3px !important;
+        }
+        .custom-check .form-check-input:checked {
+            background-color: #8b5cf6 !important; border-color: #8b5cf6 !important;
+        }
+        .custom-check .form-check-label { color: #475569 !important; font-size: 0.9rem !important; cursor: pointer !important; margin-left: 6px !important; }
+        .forgot-link { color: #8b5cf6 !important; font-size: 0.9rem !important; text-decoration: none !important; font-weight: 600 !important; }
+        .forgot-link:hover { text-decoration: underline !important; }
+
+        /* Button */
+        .btn-glow {
+            display: flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important;
+            height: 56px !important; border: none !important; border-radius: 12px !important;
+            font-weight: 600 !important; font-size: 1.05rem !important; color: #fff !important;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #ec4899 100%) !important;
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4) !important;
+            transition: all 0.3s ease !important; cursor: pointer !important;
+            width: 100% !important;
+        }
+        .btn-glow:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 15px 35px -5px rgba(99, 102, 241, 0.6) !important;
+        }
+        .btn-glow svg { width: 20px !important; height: 20px !important; }
+
+        /* Footer */
+        .auth-footer { text-align: center !important; margin-top: 30px !important; padding-top: 24px !important; border-top: 1px solid #e2e8f0 !important; }
+        .auth-footer p { margin: 0 !important; color: #64748b !important; font-size: 0.9rem !important; }
+        .auth-footer a { color: #8b5cf6 !important; font-weight: 600 !important; text-decoration: none !important; }
+        .auth-footer a:hover { text-decoration: underline !important; }
+
+        /* Validation */
+        .text-danger { color: #ef4444 !important; font-weight: 500 !important; font-size: 0.85rem !important; }
+        .input-validation-error { border-color: #ef4444 !important; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important; }
+
+        /* FIX: @@media use kora hoyeche */
+        @@media (max-width: 991px) {
+            .login-left { display: none !important; }
+            .login-right { flex: 1 !important; width: 100% !important; }
+            html, body { overflow: auto !important; }
+        }
+    </style>
 </head>
-<body class="auth-body">
-    <div class="auth-wrapper">
-        <div class="auth-card">
-            <div class="auth-brand">
-                <span class="brand-name">PharmaDesk</span>
-                <span class="brand-tag">Pharmacy Management</span>
+<body>
+    <div class="login-container">
+        
+        <!-- LEFT SIDE: Premium Branding -->
+        <div class="login-left">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            
+            <div class="brand-content">
+                <div class="brand-logo-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                
+                <h1 class="brand-title">Manage your <br><span>Pharmacy</span> <br>with ease.</h1>
+                <p class="brand-desc">The all-in-one software solution for modern pharmacies. Track inventory, manage sales, and grow your business seamlessly.</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div>
+                        <span>Real-time Inventory Tracking</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div>
+                        <span>Fast & Secure Billing System</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div>
+                        <span>Advanced Sales Analytics</span>
+                    </div>
+                </div>
             </div>
-            @RenderBody()
         </div>
+
+        <!-- RIGHT SIDE: Login Form -->
+        <div class="login-right">
+            <div class="form-wrapper">
+                <div class="form-header">
+                    <h2>Welcome Back</h2>
+                    <p>Please enter your details to sign in.</p>
+                </div>
+                
+                @RenderBody()
+            </div>
+        </div>
+
     </div>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
