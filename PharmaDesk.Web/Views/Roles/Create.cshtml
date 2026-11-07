@@ -4,52 +4,133 @@
 }
 
 @section Breadcrumb {
-    <li class="breadcrumb-item"><a asp-action="Index">Roles</a></li>
+    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Roles</a></li>
     <li class="breadcrumb-item active" aria-current="page">New</li>
 }
 
-<h1 class="h3 mb-4">New Role</h1>
+<style>
+    .form-card {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); padding: 32px;
+        max-width: 800px; margin-top: 10px;
+    }
+    .form-label { font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px; }
+    .form-control {
+        border-radius: 10px; border: 1.5px solid #e2e8f0; padding: 10px 14px;
+        font-size: 0.95rem; transition: all 0.2s;
+    }
+    .form-control:focus {
+        border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+    .btn-save {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+        border: none; border-radius: 10px; padding: 10px 24px; font-weight: 600;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); transition: all 0.2s;
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); color: #fff; }
+    .btn-cancel {
+        background: #f1f5f9; color: #475569; border: none; border-radius: 10px;
+        padding: 10px 24px; font-weight: 600; transition: all 0.2s;
+    }
+    .btn-cancel:hover { background: #e2e8f0; color: #0f172a; }
 
-<div class="card-metric" style="max-width: 720px;">
+    /* Permission Matrix Grid */
+    .permission-container {
+        background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;
+        padding: 20px; margin-top: 8px;
+    }
+    .module-title {
+        font-size: 0.8rem; font-weight: 800; color: #6366f1; text-transform: uppercase;
+        letter-spacing: 1px; margin-top: 20px; margin-bottom: 12px; padding-bottom: 8px;
+        border-bottom: 2px solid #e0e7ff;
+    }
+    .module-title:first-child { margin-top: 0; }
+    
+    .permission-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 12px;
+    }
+    .permission-item {
+        background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px;
+        padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+        transition: all 0.2s; cursor: pointer;
+    }
+    .permission-item:hover { border-color: #c7d2fe; background: #f5f3ff; }
+    .permission-item .form-check-input {
+        width: 18px; height: 18px; margin-top: 0; cursor: pointer;
+        border: 2px solid #cbd5e1; border-radius: 5px;
+    }
+    .permission-item .form-check-input:checked {
+        background-color: #8b5cf6; border-color: #8b5cf6;
+    }
+    .permission-item .form-check-label {
+        font-size: 0.85rem; font-weight: 600; color: #334155; cursor: pointer; margin: 0;
+    }
+</style>
+
+<div class="mb-4">
+    <h1 class="h3 fw-bold mb-1" style="color:#0f172a;">Create New Role</h1>
+    <p class="text-muted small mb-0">Define a role and assign specific permissions.</p>
+</div>
+
+<div class="form-card">
     <form asp-action="Create" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3 p-2 bg-danger-subtle rounded"></div>
 
-        <div class="mb-3">
-            <label asp-for="Name" class="form-label"></label>
-            <input asp-for="Name" class="form-control" />
-            <span asp-validation-for="Name" class="text-danger small"></span>
+        <div class="row">
+            <div class="col-md-5 mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" placeholder="e.g. Store Manager" />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+            <div class="col-md-7 mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <input asp-for="Description" class="form-control" placeholder="Brief description of this role" />
+            </div>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Description" class="form-label"></label>
-            <input asp-for="Description" class="form-control" />
-        </div>
-
-        <label class="form-label">Permissions</label>
-        <div class="permission-matrix mb-3">
-            @{
-                string? currentModule = null;
-            }
-            @for (var i = 0; i < Model.Permissions.Count; i++)
-            {
-                if (Model.Permissions[i].ModuleName != currentModule)
-                {
-                    currentModule = Model.Permissions[i].ModuleName;
-                    @:<div class="module-title">@currentModule</div>
+            <div class="d-flex justify-content-between align-items-end mb-2">
+                <label class="form-label mb-0">Assign Permissions</label>
+                <span class="text-muted small">Select the actions this role can perform</span>
+            </div>
+            
+            <div class="permission-container">
+                @{
+                    // Group permissions by ModuleName
+                    var groupedPermissions = Model.Permissions
+                        .Select((perm, index) => new { Permission = perm, OriginalIndex = index })
+                        .GroupBy(x => x.Permission.ModuleName);
                 }
 
-                <div class="form-check">
-                    <input type="hidden" asp-for="Permissions[i].PermissionId" />
-                    <input type="hidden" asp-for="Permissions[i].Code" />
-                    <input type="hidden" asp-for="Permissions[i].Name" />
-                    <input type="hidden" asp-for="Permissions[i].ModuleName" />
-                    <input class="form-check-input" type="checkbox" asp-for="Permissions[i].IsGranted" />
-                    <label class="form-check-label" asp-for="Permissions[i].IsGranted">@Model.Permissions[i].Name</label>
-                </div>
-            }
+                @foreach (var group in groupedPermissions)
+                {
+                    <div class="module-title">@group.Key</div>
+                    <div class="permission-grid">
+                        @foreach (var item in group)
+                        {
+                            var i = item.OriginalIndex;
+                            <div class="permission-item">
+                                <input type="hidden" asp-for="Permissions[i].PermissionId" />
+                                <input type="hidden" asp-for="Permissions[i].Code" />
+                                <input type="hidden" asp-for="Permissions[i].Name" />
+                                <input type="hidden" asp-for="Permissions[i].ModuleName" />
+                                <input class="form-check-input" type="checkbox" asp-for="Permissions[i].IsGranted" id="perm_@i" />
+                                <label class="form-check-label" asp-for="Permissions[i].IsGranted" for="perm_@i">@item.Permission.Name</label>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
         </div>
 
-        <button type="submit" class="btn btn-primary">Create</button>
-        <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+        <div class="d-flex gap-2 pt-3 border-top mt-4">
+            <button type="submit" class="btn btn-save">Create Role</button>
+            <a class="btn btn-cancel" asp-action="Index">Cancel</a>
+        </div>
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
