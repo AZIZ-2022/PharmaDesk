@@ -4,29 +4,71 @@
 }
 
 @section Breadcrumb {
-    <li class="breadcrumb-item"><a asp-action="Index">Expenses</a></li>
+    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Expenses</a></li>
     <li class="breadcrumb-item active" aria-current="page">Edit</li>
 }
 
-<h1 class="h3 mb-4">Edit Expense</h1>
+<style>
+    .form-card {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); padding: 32px;
+        max-width: 700px; margin-top: 10px;
+    }
+    .form-label { font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px; }
+    .form-control, .form-select {
+        border-radius: 10px; border: 1.5px solid #e2e8f0; padding: 10px 14px;
+        font-size: 0.95rem; transition: all 0.2s;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+    .btn-save {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+        border: none; border-radius: 10px; padding: 10px 24px; font-weight: 600;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); transition: all 0.2s;
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); color: #fff; }
+    .btn-cancel {
+        background: #f1f5f9; color: #475569; border: none; border-radius: 10px;
+        padding: 10px 24px; font-weight: 600; transition: all 0.2s;
+    }
+    .btn-cancel:hover { background: #e2e8f0; color: #0f172a; }
 
-<div class="card-metric" style="max-width: 640px;">
+    .section-divider {
+        display: flex; align-items: center; gap: 12px;
+        margin: 28px 0 18px; color: #94a3b8; font-size: 0.75rem;
+        font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .section-divider::before, .section-divider::after {
+        content: ''; flex: 1; height: 1px; background: #e2e8f0;
+    }
+    .section-divider:first-child { margin-top: 0; }
+</style>
+
+<div class="mb-4">
+    <h1 class="h3 fw-bold mb-1" style="color:#0f172a;">Edit Expense</h1>
+    <p class="text-muted small mb-0">Update the details of this expense.</p>
+</div>
+
+<div class="form-card">
     <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3 p-2 bg-danger-subtle rounded"></div>
         <input type="hidden" asp-for="Id" />
+
+        <div class="section-divider">Expense Details</div>
 
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label asp-for="BranchId" class="form-label"></label>
                 <select asp-for="BranchId" class="form-select" asp-items="Model.AvailableBranches">
-                    <option value="">-- Select --</option>
+                    <option value="">-- Select Branch --</option>
                 </select>
                 <span asp-validation-for="BranchId" class="text-danger small"></span>
             </div>
             <div class="col-md-6 mb-3">
                 <label asp-for="ExpenseCategoryId" class="form-label"></label>
                 <select asp-for="ExpenseCategoryId" class="form-select" asp-items="Model.AvailableCategories">
-                    <option value="">-- Select --</option>
+                    <option value="">-- Select Category --</option>
                 </select>
                 <span asp-validation-for="ExpenseCategoryId" class="text-danger small"></span>
             </div>
@@ -45,22 +87,26 @@
             </div>
         </div>
 
+        <div class="section-divider">Payment &amp; Notes</div>
+
         <div class="mb-3">
             <label asp-for="PaymentMethod" class="form-label"></label>
             <select asp-for="PaymentMethod" class="form-select">
-                <option value="Cash">Cash</option>
-                <option value="Bank">Bank</option>
-                <option value="Mobile Banking">Mobile Banking</option>
+                <option value="Cash">💵 Cash</option>
+                <option value="Bank">🏦 Bank</option>
+                <option value="Mobile Banking">📱 Mobile Banking</option>
             </select>
         </div>
 
-        <div class="mb-3">
+        <div class="mb-4">
             <label asp-for="Notes" class="form-label"></label>
             <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary">Save</button>
-        <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+        <div class="d-flex gap-2 pt-3 border-top">
+            <button type="submit" class="btn btn-save">Save Changes</button>
+            <a class="btn btn-cancel" asp-action="Index">Cancel</a>
+        </div>
     </form>
 </div>
 

@@ -4,57 +4,128 @@
 }
 
 @section Breadcrumb {
-    <li class="breadcrumb-item"><a asp-controller="Expenses" asp-action="Index">Expenses</a></li>
+    <li class="breadcrumb-item"><a asp-controller="Expenses" asp-action="Index" class="text-decoration-none text-muted">Expenses</a></li>
     <li class="breadcrumb-item active" aria-current="page">Categories</li>
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Expense Categories</h1>
+<style>
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px; }
+    .page-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.5px; }
+    
+    .btn-premium {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: #fff !important; border: none; border-radius: 10px; padding: 10px 20px;
+        font-weight: 600; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        transition: all 0.2s;
+    }
+    .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); }
+
+    .table-custom-wrapper {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); overflow: hidden;
+    }
+    .table-custom { width: 100%; margin-bottom: 0; border-collapse: collapse; }
+    .table-custom thead { background: #f8fafc; }
+    .table-custom th {
+        font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;
+        letter-spacing: 0.5px; padding: 16px 24px; border-bottom: 1px solid #e2e8f0;
+    }
+    .table-custom td {
+        padding: 16px 24px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;
+        font-size: 0.9rem; color: #334155;
+    }
+    .table-custom tbody tr { transition: background 0.2s; }
+    .table-custom tbody tr:hover { background: #f8fafc; }
+
+    .badge-status {
+        padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .badge-status.active { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+    .badge-status.inactive { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+    .badge-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .btn-action {
+        padding: 6px 12px; font-size: 0.8rem; font-weight: 600; border-radius: 8px;
+        text-decoration: none; transition: all 0.2s; border: 1px solid transparent;
+    }
+    .btn-edit { background: #f1f5f9; color: #475569 !important; }
+    .btn-edit:hover { background: #e2e8f0; color: #0f172a !important; }
+    .btn-danger-soft { background: #fef2f2; color: #dc2626 !important; }
+    .btn-danger-soft:hover { background: #fee2e2; }
+    .btn-success-soft { background: #ecfdf5; color: #059669 !important; }
+    .btn-success-soft:hover { background: #d1fae5; }
+
+    .empty-state { padding: 60px 20px; text-align: center; color: #64748b; }
+    .empty-state svg { width: 48px; height: 48px; color: #cbd5e1; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 700; color: #334155; margin-bottom: 8px; }
+</style>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Expense Categories</h1>
+        <p class="text-muted small mb-0 mt-1">Organize expense types for better tracking.</p>
+    </div>
     @if (User.HasClaim("permission", "Expenses.Manage"))
     {
-        <a class="btn btn-primary" asp-action="Create">New Category</a>
+        <a class="btn-premium" asp-action="Create">+ New Category</a>
     }
 </div>
 
-<div class="card-metric p-0">
-    <table class="table mb-0">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th class="text-end">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var category in Model)
-            {
-                <tr>
-                    <td>@category.Name</td>
-                    <td>@category.Description</td>
-                    <td>
-                        @if (category.IsActive)
-                        {
-                            <span class="badge text-bg-success">Active</span>
-                        }
-                        else
-                        {
-                            <span class="badge text-bg-secondary">Deactivated</span>
-                        }
-                    </td>
-                    <td class="text-end">
-                        @if (User.HasClaim("permission", "Expenses.Manage"))
-                        {
-                            <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@category.Id">Edit</a>
-                            <form asp-action="ToggleActive" asp-route-id="@category.Id" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-sm @(category.IsActive ? "btn-outline-danger" : "btn-outline-success")">
-                                    @(category.IsActive ? "Deactivate" : "Activate")
-                                </button>
-                            </form>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="table-custom-wrapper">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+            <h3>No Categories Found</h3>
+            <p>Get started by adding your first expense category.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Category Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var category in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold text-dark">@category.Name</td>
+                            <td class="text-muted">@category.Description</td>
+                            <td>
+                                @if (category.IsActive)
+                                {
+                                    <span class="badge-status active">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-status inactive">Deactivated</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    @if (User.HasClaim("permission", "Expenses.Manage"))
+                                    {
+                                        <a class="btn-action btn-edit" asp-action="Edit" asp-route-id="@category.Id">Edit</a>
+                                        <form asp-action="ToggleActive" asp-route-id="@category.Id" method="post" class="d-inline m-0">
+                                            <button type="submit" class="btn-action @(category.IsActive ? "btn-danger-soft" : "btn-success-soft")">
+                                                @(category.IsActive ? "Deactivate" : "Activate")
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

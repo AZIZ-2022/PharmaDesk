@@ -7,16 +7,91 @@
     <li class="breadcrumb-item active" aria-current="page">Inventory Valuation</li>
 }
 
-<h1 class="h3 mb-4">Inventory Valuation</h1>
-<p class="text-muted small">
-    A live snapshot of current stock value (remaining quantity &times; purchase cost per unit), as of now
-    &mdash; not a historical valuation for a past date.
-</p>
+<style>
+    .page-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.5px; }
 
-<form method="get" class="mb-3 d-flex gap-2 align-items-end flex-wrap">
+    .info-banner {
+        background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        border: 1px solid #bfdbfe; border-radius: 12px;
+        padding: 14px 20px; margin-bottom: 1.5rem;
+        display: flex; align-items: flex-start; gap: 12px;
+        color: #1e40af; font-size: 0.85rem;
+    }
+
+    .filter-bar {
+        background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
+        padding: 16px 20px; margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;
+    }
+    .filter-bar label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block; }
+    .filter-bar .form-select {
+        border-radius: 8px; border: 1.5px solid #e2e8f0; padding: 8px 12px;
+        font-size: 0.9rem; font-weight: 500;
+    }
+    .filter-bar .form-select:focus {
+        border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+    .btn-filter {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+        border: none; border-radius: 8px; padding: 8px 20px; font-weight: 600;
+        font-size: 0.9rem; transition: all 0.2s;
+    }
+    .btn-filter:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+    .btn-export {
+        background: #ffffff; color: #475569 !important; border: 1px solid #e2e8f0;
+        border-radius: 8px; padding: 8px 16px; font-weight: 600; font-size: 0.9rem;
+        transition: all 0.2s; text-decoration: none;
+    }
+    .btn-export:hover { background: #f8fafc; border-color: #cbd5e1; color: #0f172a !important; }
+
+    .table-custom-wrapper {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); overflow: hidden;
+    }
+    .table-custom { width: 100%; margin-bottom: 0; border-collapse: collapse; }
+    .table-custom thead { background: #f8fafc; }
+    .table-custom th {
+        font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;
+        letter-spacing: 0.5px; padding: 16px 24px; border-bottom: 1px solid #e2e8f0;
+    }
+    .table-custom td {
+        padding: 16px 24px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;
+        font-size: 0.9rem; color: #334155;
+    }
+    .table-custom tbody tr { transition: background 0.2s; }
+    .table-custom tbody tr:hover { background: #f8fafc; }
+
+    .table-custom tfoot td {
+        background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+        font-weight: 800; color: #0f172a;
+        padding: 18px 24px; border-top: 2px solid #a7f3d0; font-size: 1rem;
+    }
+    .table-custom tfoot tr td:last-child { color: #059669; font-size: 1.1rem; }
+
+    .stock-value { font-weight: 700; color: #0f172a; }
+
+    .empty-state { padding: 60px 20px; text-align: center; color: #64748b; }
+    .empty-state svg { width: 48px; height: 48px; color: #cbd5e1; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 700; color: #334155; margin-bottom: 8px; }
+</style>
+
+<div class="mb-4">
+    <h1 class="page-title">Inventory Valuation</h1>
+    <p class="text-muted small mb-0 mt-1">Current stock value snapshot across all branches.</p>
+</div>
+
+<div class="info-banner">
+    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
     <div>
-        <label class="form-label small mb-0">Branch</label>
-        <select name="branchId" class="form-select">
+        A <strong>live snapshot</strong> of current stock value (remaining quantity × purchase cost per unit), as of now — not a historical valuation for a past date.
+    </div>
+</div>
+
+<form method="get" class="filter-bar">
+    <div>
+        <label>Branch</label>
+        <select name="branchId" class="form-select" style="min-width: 200px;">
             <option value="">-- All branches --</option>
             @foreach (var branch in Model.AvailableBranches)
             {
@@ -24,45 +99,49 @@
             }
         </select>
     </div>
-    <button type="submit" class="btn btn-outline-secondary">Filter</button>
-    <a class="btn btn-outline-secondary" asp-action="InventoryValuation" asp-route-branchId="@Model.BranchId" asp-route-format="csv">Export CSV</a>
+    <button type="submit" class="btn btn-filter">Apply Filter</button>
+    <a class="btn btn-export" asp-action="InventoryValuation" asp-route-branchId="@Model.BranchId" asp-route-format="csv">📥 Export CSV</a>
 </form>
 
-<div class="card-metric p-0">
-    <table class="table mb-0">
-        <thead>
-            <tr>
-                <th>Medicine</th>
-                <th>Unit</th>
-                <th class="text-end">Quantity Remaining</th>
-                <th class="text-end">Stock Value</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var row in Model.Rows)
-            {
-                <tr>
-                    <td>@row.MedicineBrandName</td>
-                    <td>@row.BaseUnitName</td>
-                    <td class="text-end">@row.QuantityRemaining.ToString("N2")</td>
-                    <td class="text-end">@row.TotalValue.ToString("N2")</td>
-                </tr>
-            }
-            @if (!Model.Rows.Any())
-            {
-                <tr>
-                    <td colspan="4" class="text-center text-muted py-4">No stock on hand.</td>
-                </tr>
-            }
-        </tbody>
-        @if (Model.Rows.Any())
-        {
-            <tfoot>
-                <tr class="fw-bold">
-                    <td colspan="3">Total Stock Value</td>
-                    <td class="text-end">@Model.TotalValue.ToString("N2")</td>
-                </tr>
-            </tfoot>
-        }
-    </table>
+<div class="table-custom-wrapper">
+    @if (!Model.Rows.Any())
+    {
+        <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            <h3>No Stock On Hand</h3>
+            <p>There is no inventory currently available.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Medicine</th>
+                        <th>Unit</th>
+                        <th class="text-end">Quantity Remaining</th>
+                        <th class="text-end">Stock Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Rows)
+                    {
+                        <tr>
+                            <td class="fw-bold text-dark">@row.MedicineBrandName</td>
+                            <td class="text-muted">@row.BaseUnitName</td>
+                            <td class="text-end fw-semibold">@row.QuantityRemaining.ToString("N2")</td>
+                            <td class="text-end stock-value">৳ @row.TotalValue.ToString("N2")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3">Total Stock Value</td>
+                        <td class="text-end">৳ @Model.TotalValue.ToString("N2")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    }
 </div>

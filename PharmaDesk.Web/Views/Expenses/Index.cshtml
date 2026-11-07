@@ -11,29 +11,122 @@
     <li class="breadcrumb-item active" aria-current="page">Expenses</li>
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Expenses</h1>
-    <div class="d-flex gap-2">
-        @if (User.HasClaim("permission", "Expenses.Manage"))
-        {
-            <a class="btn btn-outline-secondary" asp-controller="ExpenseCategories" asp-action="Index">Categories</a>
-            <a class="btn btn-primary" asp-action="Create">New Expense</a>
-        }
+<style>
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px; }
+    .page-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.5px; }
+    
+    .btn-premium {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: #fff !important; border: none; border-radius: 10px; padding: 10px 20px;
+        font-weight: 600; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        transition: all 0.2s;
+    }
+    .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); }
+    
+    .btn-secondary-soft {
+        background: #ffffff; color: #475569 !important; border: 1px solid #e2e8f0;
+        border-radius: 10px; padding: 10px 18px; font-weight: 600; font-size: 0.9rem;
+        transition: all 0.2s; text-decoration: none;
+    }
+    .btn-secondary-soft:hover { background: #f8fafc; border-color: #cbd5e1; color: #0f172a !important; }
+
+    .filter-bar {
+        background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
+        padding: 16px 20px; margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;
+    }
+    .filter-bar label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block; }
+    .filter-bar .form-control, .filter-bar .form-select {
+        border-radius: 8px; border: 1.5px solid #e2e8f0; padding: 8px 12px;
+        font-size: 0.9rem; font-weight: 500;
+    }
+    .filter-bar .form-control:focus, .filter-bar .form-select:focus {
+        border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+    .btn-filter {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+        border: none; border-radius: 8px; padding: 8px 20px; font-weight: 600;
+        font-size: 0.9rem; transition: all 0.2s;
+    }
+    .btn-filter:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+
+    .table-custom-wrapper {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); overflow: hidden;
+    }
+    .table-custom { width: 100%; margin-bottom: 0; border-collapse: collapse; }
+    .table-custom thead { background: #f8fafc; }
+    .table-custom th {
+        font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;
+        letter-spacing: 0.5px; padding: 16px 24px; border-bottom: 1px solid #e2e8f0;
+    }
+    .table-custom td {
+        padding: 16px 24px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;
+        font-size: 0.9rem; color: #334155;
+    }
+    .table-custom tbody tr { transition: background 0.2s; }
+    .table-custom tbody tr:hover { background: #f8fafc; }
+    .table-custom tbody tr.voided-row { background: #f8fafc; opacity: 0.7; }
+
+    .badge-status {
+        padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .badge-status.active { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+    .badge-status.voided { background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; text-decoration: line-through; }
+    .badge-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .amount-display { font-weight: 800; color: #0f172a; font-size: 1rem; }
+    .amount-display.voided { text-decoration: line-through; color: #94a3b8; }
+
+    .method-badge {
+        background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 6px;
+        font-size: 0.75rem; font-weight: 600;
+    }
+
+    .btn-action {
+        padding: 6px 12px; font-size: 0.8rem; font-weight: 600; border-radius: 8px;
+        text-decoration: none; transition: all 0.2s; border: 1px solid transparent;
+    }
+    .btn-edit { background: #f1f5f9; color: #475569 !important; }
+    .btn-edit:hover { background: #e2e8f0; color: #0f172a !important; }
+    .btn-danger-soft { background: #fef2f2; color: #dc2626 !important; }
+    .btn-danger-soft:hover { background: #fee2e2; }
+    .btn-success-soft { background: #ecfdf5; color: #059669 !important; }
+    .btn-success-soft:hover { background: #d1fae5; }
+
+    .empty-state { padding: 60px 20px; text-align: center; color: #64748b; }
+    .empty-state svg { width: 48px; height: 48px; color: #cbd5e1; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 700; color: #334155; margin-bottom: 8px; }
+</style>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Expenses</h1>
+        <p class="text-muted small mb-0 mt-1">Track and manage pharmacy operating expenses.</p>
     </div>
+    @if (User.HasClaim("permission", "Expenses.Manage"))
+    {
+        <div class="d-flex gap-2 flex-wrap">
+            <a class="btn-secondary-soft" asp-controller="ExpenseCategories" asp-action="Index">Categories</a>
+            <a class="btn-premium" asp-action="Create">+ New Expense</a>
+        </div>
+    }
 </div>
 
-<form method="get" class="mb-3 d-flex gap-2 align-items-end flex-wrap">
+<form method="get" class="filter-bar">
     <div>
-        <label class="form-label small mb-0">From</label>
+        <label>From Date</label>
         <input type="date" name="fromDate" class="form-control" value="@fromDate?.ToString("yyyy-MM-dd")" />
     </div>
     <div>
-        <label class="form-label small mb-0">To</label>
+        <label>To Date</label>
         <input type="date" name="toDate" class="form-control" value="@toDate?.ToString("yyyy-MM-dd")" />
     </div>
     <div>
-        <label class="form-label small mb-0">Category</label>
-        <select name="categoryId" class="form-select">
+        <label>Category</label>
+        <select name="categoryId" class="form-select" style="min-width: 180px;">
             <option value="">-- All categories --</option>
             @foreach (var category in categories)
             {
@@ -41,60 +134,71 @@
             }
         </select>
     </div>
-    <button type="submit" class="btn btn-outline-secondary">Filter</button>
+    <button type="submit" class="btn btn-filter">Apply Filter</button>
 </form>
 
-<div class="card-metric p-0">
-    <table class="table mb-0">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Category</th>
-                <th>Branch</th>
-                <th class="text-end">Amount</th>
-                <th>Payment Method</th>
-                <th>Status</th>
-                <th class="text-end">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var expense in Model)
-            {
-                <tr>
-                    <td>@expense.ExpenseDate.ToString("yyyy-MM-dd")</td>
-                    <td>@expense.CategoryName</td>
-                    <td>@expense.BranchName</td>
-                    <td class="text-end">@expense.Amount.ToString("N2")</td>
-                    <td>@expense.PaymentMethod</td>
-                    <td>
-                        @if (expense.IsActive)
-                        {
-                            <span class="badge text-bg-success">Active</span>
-                        }
-                        else
-                        {
-                            <span class="badge text-bg-secondary">Voided</span>
-                        }
-                    </td>
-                    <td class="text-end">
-                        @if (User.HasClaim("permission", "Expenses.Manage"))
-                        {
-                            <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@expense.Id">Edit</a>
-                            <form asp-action="ToggleActive" asp-route-id="@expense.Id" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-sm @(expense.IsActive ? "btn-outline-danger" : "btn-outline-success")">
-                                    @(expense.IsActive ? "Void" : "Restore")
-                                </button>
-                            </form>
-                        }
-                    </td>
-                </tr>
-            }
-            @if (!Model.Any())
-            {
-                <tr>
-                    <td colspan="7" class="text-center text-muted py-4">No expenses recorded yet.</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="table-custom-wrapper">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <h3>No Expenses Recorded</h3>
+            <p>Get started by adding your first expense.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Branch</th>
+                        <th class="text-end">Amount</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var expense in Model)
+                    {
+                        <tr class="@(expense.IsActive ? "" : "voided-row")">
+                            <td class="text-muted">@expense.ExpenseDate.ToString("dd MMM yyyy")</td>
+                            <td class="fw-semibold text-dark">@expense.CategoryName</td>
+                            <td class="text-muted">@expense.BranchName</td>
+                            <td class="text-end">
+                                <span class="amount-display @(expense.IsActive ? "" : "voided")">৳ @expense.Amount.ToString("N2")</span>
+                            </td>
+                            <td><span class="method-badge">@expense.PaymentMethod</span></td>
+                            <td>
+                                @if (expense.IsActive)
+                                {
+                                    <span class="badge-status active">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-status voided">Voided</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    @if (User.HasClaim("permission", "Expenses.Manage"))
+                                    {
+                                        <a class="btn-action btn-edit" asp-action="Edit" asp-route-id="@expense.Id">Edit</a>
+                                        <form asp-action="ToggleActive" asp-route-id="@expense.Id" method="post" class="d-inline m-0">
+                                            <button type="submit" class="btn-action @(expense.IsActive ? "btn-danger-soft" : "btn-success-soft")">
+                                                @(expense.IsActive ? "Void" : "Restore")
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>
