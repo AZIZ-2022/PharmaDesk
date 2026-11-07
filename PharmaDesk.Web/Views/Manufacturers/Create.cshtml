@@ -4,30 +4,62 @@
 }
 
 @section Breadcrumb {
-    <li class="breadcrumb-item"><a asp-controller="Medicines" asp-action="Index">Medicines</a></li>
-    <li class="breadcrumb-item"><a asp-action="Index">Manufacturers</a></li>
+    <li class="breadcrumb-item"><a asp-controller="Medicines" asp-action="Index" class="text-decoration-none text-muted">Medicines</a></li>
+    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Manufacturers</a></li>
     <li class="breadcrumb-item active" aria-current="page">New</li>
 }
 
-<h1 class="h3 mb-4">New Manufacturer</h1>
+<style>
+    .form-card {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); padding: 32px;
+        max-width: 600px; margin-top: 10px;
+    }
+    .form-label { font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px; }
+    .form-control {
+        border-radius: 10px; border: 1.5px solid #e2e8f0; padding: 10px 14px;
+        font-size: 0.95rem; transition: all 0.2s;
+    }
+    .form-control:focus {
+        border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+    .btn-save {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+        border: none; border-radius: 10px; padding: 10px 24px; font-weight: 600;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); transition: all 0.2s;
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); color: #fff; }
+    .btn-cancel {
+        background: #f1f5f9; color: #475569; border: none; border-radius: 10px;
+        padding: 10px 24px; font-weight: 600; transition: all 0.2s;
+    }
+    .btn-cancel:hover { background: #e2e8f0; color: #0f172a; }
+</style>
 
-<div class="card-metric" style="max-width: 560px;">
+<div class="mb-4">
+    <h1 class="h3 fw-bold mb-1" style="color:#0f172a;">Create New Manufacturer</h1>
+    <p class="text-muted small mb-0">Add a new pharmaceutical manufacturer.</p>
+</div>
+
+<div class="form-card">
     <form asp-action="Create" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3 p-2 bg-danger-subtle rounded"></div>
 
         <div class="mb-3">
             <label asp-for="Name" class="form-label"></label>
-            <input asp-for="Name" class="form-control" />
+            <input asp-for="Name" class="form-control" placeholder="e.g. Square Pharmaceuticals" />
             <span asp-validation-for="Name" class="text-danger small"></span>
         </div>
 
-        <div class="mb-3">
+        <div class="mb-4">
             <label asp-for="Country" class="form-label"></label>
-            <input asp-for="Country" class="form-control" />
+            <input asp-for="Country" class="form-control" placeholder="e.g. Bangladesh" />
         </div>
 
-        <button type="submit" class="btn btn-primary">Create</button>
-        <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+        <div class="d-flex gap-2 pt-3 border-top">
+            <button type="submit" class="btn btn-save">Create Manufacturer</button>
+            <a class="btn btn-cancel" asp-action="Index">Cancel</a>
+        </div>
     </form>
 </div>
 
