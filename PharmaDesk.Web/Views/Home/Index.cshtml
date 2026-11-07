@@ -7,13 +7,154 @@
     <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <h1 class="h3 mb-0">Dashboard</h1>
+<!-- Custom Styles for Dashboard -->
+<style>
+    /* --- Dashboard Base Theme --- */
+    body {
+        background-color: #f1f5f9 !important; /* Soft slate background */
+    }
+
+    /* --- Header Section --- */
+    .dash-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .dash-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.5px;
+        margin: 0;
+    }
+    .branch-select {
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-weight: 500;
+        color: #475569;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .branch-select:focus {
+        border-color: #8b5cf6;
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        outline: none;
+    }
+
+    /* --- Status Banner --- */
+    .status-banner {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 16px 20px;
+        border-radius: 12px;
+        font-size: 0.95rem;
+    }
+    .status-ok {
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: #065f46;
+    }
+    .status-fail {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+    }
+    .status-dot {
+        width: 12px; height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .status-dot.ok { background: #10b981; box-shadow: 0 0 10px #10b981; }
+    .status-dot.fail { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+
+    /* --- Metric Cards --- */
+    .card-metric {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+    .card-metric:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -5px rgba(0, 0, 0, 0.02);
+        border-color: #cbd5e1;
+    }
+    /* Top Accent Line */
+    .card-metric::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .card-metric:hover::before {
+        opacity: 1;
+    }
+
+    .metric-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+
+    /* --- Chart Card --- */
+    .chart-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        margin-top: 1rem;
+    }
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .chart-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+    }
+</style>
+
+<!-- Header -->
+<div class="dash-header">
+    <h1 class="dash-title">Dashboard Overview</h1>
+    
     @if (Model.IsDatabaseConnected)
     {
         <form method="get" class="d-flex gap-2">
-            <select name="branchId" class="form-select form-select-sm" onchange="this.form.submit()">
-                <option value="">-- All branches --</option>
+            <select name="branchId" class="branch-select" onchange="this.form.submit()">
+                <option value="">🏢 All branches</option>
                 @foreach (var branch in Model.AvailableBranches)
                 {
                     <option value="@branch.Value" selected="@(Model.BranchId.HasValue && branch.Value == Model.BranchId.Value.ToString())">@branch.Text</option>
@@ -23,13 +164,14 @@
     }
 </div>
 
+<!-- Database Status -->
 @if (Model.IsDatabaseConnected)
 {
     <div class="status-banner status-ok mb-4">
         <span class="status-dot ok"></span>
         <div>
-            <strong>Database connected.</strong>
-            Current schema version: <strong>@(Model.CurrentSchemaVersion ?? "unknown")</strong>
+            <strong>System Online.</strong> Database connected successfully. 
+            <span class="opacity-75">Schema version: <strong>@(Model.CurrentSchemaVersion ?? "unknown")</strong></span>
         </div>
     </div>
 }
@@ -38,7 +180,7 @@ else
     <div class="status-banner status-fail mb-4">
         <span class="status-dot fail"></span>
         <div>
-            <strong>Database not reachable.</strong>
+            <strong>Database Disconnected.</strong>
             Run <code>Database/PharmaDesk_Complete.sql</code> in SSMS against your SQL Server instance, then set
             <code>ConnectionStrings:DefaultConnection</code> in <code>appsettings.Development.json</code>.
             @if (!string.IsNullOrWhiteSpace(Model.DatabaseErrorMessage))
@@ -49,21 +191,28 @@ else
     </div>
 }
 
+<!-- Metrics -->
 @if (Model.IsDatabaseConnected)
 {
-    <div class="row g-3 mb-4">
+    <div class="row g-4 mb-4">
         @if (User.HasClaim("permission", "Sales.View"))
         {
             <div class="col-sm-6 col-lg-3">
                 <div class="card-metric">
-                    <div class="metric-label">Today's Revenue</div>
-                    <div class="metric-value">@Model.TodayRevenue.ToString("N2")</div>
+                    <div class="metric-label">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Today's Revenue
+                    </div>
+                    <div class="metric-value">৳ @Model.TodayRevenue.ToString("N2")</div>
                 </div>
             </div>
             <div class="col-sm-6 col-lg-3">
                 <div class="card-metric">
-                    <div class="metric-label">This Month's Revenue</div>
-                    <div class="metric-value">@Model.MonthRevenue.ToString("N2")</div>
+                    <div class="metric-label">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        This Month's Revenue
+                    </div>
+                    <div class="metric-value">৳ @Model.MonthRevenue.ToString("N2")</div>
                 </div>
             </div>
         }
@@ -71,14 +220,20 @@ else
         {
             <div class="col-sm-6 col-lg-3">
                 <div class="card-metric">
-                    <div class="metric-label">Total Receivable</div>
-                    <div class="metric-value">@Model.TotalReceivable.ToString("N2")</div>
+                    <div class="metric-label">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                        Total Receivable
+                    </div>
+                    <div class="metric-value text-success">৳ @Model.TotalReceivable.ToString("N2")</div>
                 </div>
             </div>
             <div class="col-sm-6 col-lg-3">
                 <div class="card-metric">
-                    <div class="metric-label">Total Payable</div>
-                    <div class="metric-value">@Model.TotalPayable.ToString("N2")</div>
+                    <div class="metric-label">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                        Total Payable
+                    </div>
+                    <div class="metric-value text-danger">৳ @Model.TotalPayable.ToString("N2")</div>
                 </div>
             </div>
         }
@@ -86,24 +241,36 @@ else
         {
             <div class="col-sm-6 col-lg-3">
                 <div class="card-metric">
-                    <div class="metric-label">Low Stock Medicines</div>
-                    <div class="metric-value">@Model.LowStockCount</div>
+                    <div class="metric-label">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        Low Stock Medicines
+                    </div>
+                    <div class="metric-value text-warning">@Model.LowStockCount</div>
                 </div>
             </div>
             <div class="col-sm-6 col-lg-3">
                 <div class="card-metric">
-                    <div class="metric-label">Expiring Soon (30 days)</div>
-                    <div class="metric-value">@Model.ExpiringSoonCount</div>
+                    <div class="metric-label">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        Expiring Soon (30 Days)
+                    </div>
+                    <div class="metric-value text-danger">@Model.ExpiringSoonCount</div>
                 </div>
             </div>
         }
     </div>
 
+    <!-- Chart -->
     @if (User.HasClaim("permission", "Sales.View"))
     {
-        <div class="card-metric">
-            <div class="metric-label mb-2">Sales - Last 14 Days</div>
-            <canvas id="salesChart" height="90"></canvas>
+        <div class="chart-card">
+            <div class="chart-header">
+                <h2 class="chart-title">Sales Overview - Last 14 Days</h2>
+                <span class="badge bg-light text-dark border">Live Data</span>
+            </div>
+            <div style="position: relative; height:320px; width:100%">
+                <canvas id="salesChart"></canvas>
+            </div>
         </div>
     }
 }
@@ -113,7 +280,13 @@ else
     {
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
         <script>
-            const ctx = document.getElementById('salesChart');
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            // Chart Gradient Fill
+            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(139, 92, 246, 0.4)');   // Purple top
+            gradient.addColorStop(1, 'rgba(139, 92, 246, 0.0)');   // Transparent bottom
+
             new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -121,15 +294,56 @@ else
                     datasets: [{
                         label: 'Revenue',
                         data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartValues)),
-                        borderColor: '#0d6efd',
-                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                        tension: 0.3,
+                        borderColor: '#8b5cf6', /* Premium Purple */
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#8b5cf6',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.4, /* Smooth Curve */
                         fill: true,
                     }]
                 },
                 options: {
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleFont: { size: 13, family: 'Inter' },
+                            bodyFont: { size: 14, weight: 'bold', family: 'Inter' },
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return '৳ ' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: { 
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: '#64748b', font: { family: 'Inter' } }
+                        },
+                        y: { 
+                            beginAtZero: true,
+                            border: { display: false },
+                            grid: { color: '#f1f5f9', drawTicks: false },
+                            ticks: { 
+                                color: '#64748b', 
+                                font: { family: 'Inter' },
+                                callback: function(value) { return '৳ ' + value; } 
+                            } 
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
                 }
             });
         </script>

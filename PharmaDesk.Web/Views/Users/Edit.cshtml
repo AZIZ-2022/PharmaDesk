@@ -4,56 +4,92 @@
 }
 
 @section Breadcrumb {
-    <li class="breadcrumb-item"><a asp-action="Index">Users</a></li>
+    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Users</a></li>
     <li class="breadcrumb-item active" aria-current="page">Edit</li>
 }
 
-<h1 class="h3 mb-4">Edit User</h1>
+<style>
+    .form-card {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); padding: 32px;
+        max-width: 600px; margin-top: 10px;
+    }
+    .form-label { font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px; }
+    .form-control, .form-select {
+        border-radius: 10px; border: 1.5px solid #e2e8f0; padding: 10px 14px;
+        font-size: 0.95rem; transition: all 0.2s;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+    .btn-save {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+        border: none; border-radius: 10px; padding: 10px 24px; font-weight: 600;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); transition: all 0.2s;
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); color: #fff; }
+    .btn-cancel {
+        background: #f1f5f9; color: #475569; border: none; border-radius: 10px;
+        padding: 10px 24px; font-weight: 600; transition: all 0.2s;
+    }
+    .btn-cancel:hover { background: #e2e8f0; color: #0f172a; }
+    .form-text { font-size: 0.8rem; color: #64748b; margin-top: 6px; }
+</style>
 
-<div class="card-metric" style="max-width: 560px;">
+<div class="mb-4">
+    <h1 class="h3 fw-bold mb-1" style="color:#0f172a;">Edit User Profile</h1>
+    <p class="text-muted small mb-0">Update the information for <strong>@Model.UserName</strong></p>
+</div>
+
+<div class="form-card">
     <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3 p-2 bg-danger-subtle rounded"></div>
 
-        <div class="mb-3">
+        <div class="mb-4">
             <label class="form-label">Username</label>
-            <input class="form-control" value="@Model.UserName" disabled />
+            <input class="form-control bg-light" value="@Model.UserName" disabled style="cursor: not-allowed; border-style: dashed;" />
+            <div class="form-text">Username cannot be changed.</div>
         </div>
 
-        <div class="mb-3">
-            <label asp-for="FullName" class="form-label"></label>
-            <input asp-for="FullName" class="form-control" />
-            <span asp-validation-for="FullName" class="text-danger small"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Email" class="form-label"></label>
-            <input asp-for="Email" class="form-control" />
-            <span asp-validation-for="Email" class="text-danger small"></span>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="FullName" class="form-label"></label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
         </div>
 
         <div class="mb-3">
             <label asp-for="Password" class="form-label"></label>
-            <input asp-for="Password" class="form-control" />
+            <input asp-for="Password" class="form-control" placeholder="Leave blank to keep current" />
             <span asp-validation-for="Password" class="text-danger small"></span>
             <div class="form-text">Leave blank to keep the current password. Setting one forces a change on next login.</div>
         </div>
 
-        <div class="mb-3">
-            <label asp-for="SelectedRoleId" class="form-label"></label>
-            <select asp-for="SelectedRoleId" asp-items="Model.AvailableRoles" class="form-select">
-                <option value="">-- No role --</option>
-            </select>
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <label asp-for="SelectedRoleId" class="form-label"></label>
+                <select asp-for="SelectedRoleId" asp-items="Model.AvailableRoles" class="form-select">
+                    <option value="">-- No role --</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-4">
+                <label asp-for="SelectedBranchId" class="form-label"></label>
+                <select asp-for="SelectedBranchId" asp-items="Model.AvailableBranches" class="form-select">
+                    <option value="">-- All branches --</option>
+                </select>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label asp-for="SelectedBranchId" class="form-label"></label>
-            <select asp-for="SelectedBranchId" asp-items="Model.AvailableBranches" class="form-select">
-                <option value="">-- All branches --</option>
-            </select>
+        <div class="d-flex gap-2 pt-2 border-top">
+            <button type="submit" class="btn btn-save">Save Changes</button>
+            <a class="btn btn-cancel" asp-action="Index">Cancel</a>
         </div>
-
-        <button type="submit" class="btn btn-primary">Save</button>
-        <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
     </form>
 </div>
 
