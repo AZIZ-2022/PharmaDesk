@@ -4,32 +4,87 @@
 }
 
 @section Breadcrumb {
-    <li class="breadcrumb-item"><a asp-action="Batches">Batches</a></li>
+    <li class="breadcrumb-item"><a asp-action="Batches" class="text-decoration-none text-muted">Batches</a></li>
     <li class="breadcrumb-item active" aria-current="page">Adjust</li>
 }
 
-<h1 class="h3 mb-4">Adjust Stock</h1>
+<style>
+    .form-card {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); padding: 32px;
+        max-width: 600px; margin-top: 10px;
+    }
+    .form-label { font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px; }
+    .form-control, .form-select {
+        border-radius: 10px; border: 1.5px solid #e2e8f0; padding: 10px 14px;
+        font-size: 0.95rem; transition: all 0.2s;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+    
+    .info-box {
+        background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;
+        padding: 20px; margin-bottom: 24px;
+    }
+    .info-label {
+        font-size: 0.7rem; font-weight: 700; color: #64748b;
+        text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+    }
+    .info-value { font-size: 1.1rem; font-weight: 800; color: #0f172a; }
+    .info-value.highlight { color: #6366f1; }
 
-<div class="card-metric" style="max-width: 560px;">
-    <p>
-        <strong>@Model.MedicineBrandName</strong> &mdash; Batch @Model.BatchNumber<br />
-        Current remaining quantity: <strong>@Model.CurrentQuantityRemaining.ToString("N2")</strong>
-    </p>
+    .btn-save {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+        border: none; border-radius: 10px; padding: 10px 24px; font-weight: 600;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); transition: all 0.2s;
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); color: #fff; }
+    .btn-cancel {
+        background: #f1f5f9; color: #475569; border: none; border-radius: 10px;
+        padding: 10px 24px; font-weight: 600; transition: all 0.2s;
+    }
+    .btn-cancel:hover { background: #e2e8f0; color: #0f172a; }
+</style>
+
+<div class="mb-4">
+    <h1 class="h3 fw-bold mb-1" style="color:#0f172a;">Adjust Stock</h1>
+    <p class="text-muted small mb-0">Correct stock levels due to damage, expiry, or count error.</p>
+</div>
+
+<div class="form-card">
+    <!-- Info Box -->
+    <div class="info-box">
+        <div class="row">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <div class="info-label">Medicine</div>
+                <div class="info-value">@Model.MedicineBrandName</div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-label">Batch</div>
+                <div class="info-value">@Model.BatchNumber</div>
+            </div>
+        </div>
+        <hr style="border-top: 1px dashed #cbd5e1; margin: 16px 0;" />
+        <div class="info-label">Current Remaining Quantity</div>
+        <div class="info-value highlight">@Model.CurrentQuantityRemaining.ToString("N2") units</div>
+    </div>
 
     <form asp-action="Adjust" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3 p-2 bg-danger-subtle rounded"></div>
         <input type="hidden" asp-for="MedicineBatchId" />
 
         <div class="mb-3">
             <label asp-for="QuantityDelta" class="form-label"></label>
-            <input asp-for="QuantityDelta" class="form-control" type="number" step="0.01" />
+            <input asp-for="QuantityDelta" class="form-control" type="number" step="0.01" placeholder="e.g. -5 for damage, +10 for count correction" />
+            <div class="form-text small text-muted mt-1">Use positive number to increase stock, negative to decrease (e.g. -5).</div>
             <span asp-validation-for="QuantityDelta" class="text-danger small"></span>
         </div>
 
         <div class="mb-3">
             <label asp-for="Reason" class="form-label"></label>
             <select asp-for="Reason" class="form-select">
-                <option value="">-- Select --</option>
+                <option value="">-- Select Reason --</option>
                 <option value="Damage">Damage</option>
                 <option value="Expired">Expired</option>
                 <option value="Physical Count Correction">Physical Count Correction</option>
@@ -38,13 +93,15 @@
             <span asp-validation-for="Reason" class="text-danger small"></span>
         </div>
 
-        <div class="mb-3">
+        <div class="mb-4">
             <label asp-for="Notes" class="form-label"></label>
-            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+            <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Optional notes about this adjustment..."></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary">Save Adjustment</button>
-        <a class="btn btn-outline-secondary" asp-action="Batches">Cancel</a>
+        <div class="d-flex gap-2 pt-3 border-top">
+            <button type="submit" class="btn btn-save">Save Adjustment</button>
+            <a class="btn btn-cancel" asp-action="Batches">Cancel</a>
+        </div>
     </form>
 </div>
 

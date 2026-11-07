@@ -7,45 +7,118 @@
     <li class="breadcrumb-item active" aria-current="page">Sales Returns</li>
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Sales Returns</h1>
-    <a class="btn btn-outline-secondary" asp-action="PurchaseReturns">Purchase Returns</a>
+<style>
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px; }
+    .page-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.5px; }
+    
+    .btn-secondary-soft {
+        background: #ffffff; color: #475569 !important; border: 1px solid #e2e8f0;
+        border-radius: 10px; padding: 10px 18px; font-weight: 600; font-size: 0.9rem;
+        transition: all 0.2s; text-decoration: none;
+    }
+    .btn-secondary-soft:hover { background: #f8fafc; border-color: #cbd5e1; color: #0f172a !important; }
+
+    .table-custom-wrapper {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); overflow: hidden;
+    }
+    .table-custom { width: 100%; margin-bottom: 0; border-collapse: collapse; }
+    .table-custom thead { background: #f8fafc; }
+    .table-custom th {
+        font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;
+        letter-spacing: 0.5px; padding: 14px 16px; border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+    }
+    .table-custom td {
+        padding: 14px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;
+        font-size: 0.9rem; color: #334155;
+    }
+    .table-custom tbody tr { transition: background 0.2s; }
+    .table-custom tbody tr:hover { background: #f8fafc; }
+
+    .id-badge {
+        background: #eff6ff; color: #2563eb; padding: 4px 10px; border-radius: 8px;
+        font-size: 0.75rem; font-weight: 700; font-family: 'Courier New', monospace;
+        text-decoration: none; transition: all 0.2s;
+    }
+    .id-badge:hover { background: #dbeafe; color: #1e40af; }
+
+    .badge-restocked-yes {
+        background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;
+        padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
+    }
+    .badge-restocked-no {
+        background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;
+        padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
+    }
+
+    .return-amount { font-weight: 700; color: #dc2626; }
+
+    .empty-state { padding: 60px 20px; text-align: center; color: #64748b; }
+    .empty-state svg { width: 48px; height: 48px; color: #cbd5e1; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 700; color: #334155; margin-bottom: 8px; }
+</style>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Sales Returns</h1>
+        <p class="text-muted small mb-0 mt-1">All customer returns and refunds.</p>
+    </div>
+    <a class="btn-secondary-soft" asp-action="PurchaseReturns">📦 Purchase Returns</a>
 </div>
 
-<div class="card-metric p-0">
-    <table class="table mb-0">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Sale #</th>
-                <th>Customer</th>
-                <th>Medicine</th>
-                <th class="text-end">Qty</th>
-                <th class="text-end">Return Amount</th>
-                <th>Restocked</th>
-                <th>Reason</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var r in Model)
-            {
-                <tr>
-                    <td>@r.ReturnedAtUtc.ToString("yyyy-MM-dd HH:mm")</td>
-                    <td><a asp-controller="Sales" asp-action="Details" asp-route-id="@r.SaleId">#@r.SaleId</a></td>
-                    <td>@r.CustomerName</td>
-                    <td>@r.MedicineBrandName</td>
-                    <td class="text-end">@r.QuantityReturned.ToString("N2")</td>
-                    <td class="text-end">@r.ReturnAmount.ToString("N2")</td>
-                    <td>@(r.IsRestocked ? "Yes" : "No")</td>
-                    <td>@r.Reason</td>
-                </tr>
-            }
-            @if (!Model.Any())
-            {
-                <tr>
-                    <td colspan="8" class="text-center text-muted py-4">No sales returns recorded yet.</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="table-custom-wrapper">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            <h3>No Sales Returns</h3>
+            <p>Customer returns will appear here.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Sale #</th>
+                        <th>Customer</th>
+                        <th>Medicine</th>
+                        <th class="text-end">Qty</th>
+                        <th class="text-end">Return Amount</th>
+                        <th>Restocked</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model)
+                    {
+                        <tr>
+                            <td class="text-muted">@r.ReturnedAtUtc.ToString("dd MMM yyyy, HH:mm")</td>
+                            <td>
+                                <a class="id-badge" asp-controller="Sales" asp-action="Details" asp-route-id="@r.SaleId">#@r.SaleId</a>
+                            </td>
+                            <td class="fw-semibold">@r.CustomerName</td>
+                            <td>@r.MedicineBrandName</td>
+                            <td class="text-end fw-semibold">@r.QuantityReturned.ToString("N2")</td>
+                            <td class="text-end return-amount">৳ @r.ReturnAmount.ToString("N2")</td>
+                            <td>
+                                @if (r.IsRestocked)
+                                {
+                                    <span class="badge-restocked-yes">✓ Yes</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-restocked-no">✗ No</span>
+                                }
+                            </td>
+                            <td class="text-muted">@r.Reason</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

@@ -4,20 +4,69 @@
 }
 
 @section Breadcrumb {
-    <li class="breadcrumb-item"><a asp-controller="Purchases" asp-action="Details" asp-route-id="@Model.PurchaseId">Purchase #@Model.PurchaseId</a></li>
+    <li class="breadcrumb-item"><a asp-controller="Purchases" asp-action="Details" asp-route-id="@Model.PurchaseId" class="text-decoration-none text-muted">Purchase #@Model.PurchaseId</a></li>
     <li class="breadcrumb-item active" aria-current="page">Return</li>
 }
 
-<h1 class="h3 mb-4">Return Stock to Supplier</h1>
+<style>
+    .form-card {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); padding: 32px;
+        max-width: 600px; margin-top: 10px;
+    }
+    .form-label { font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px; }
+    .form-control, .form-select {
+        border-radius: 10px; border: 1.5px solid #e2e8f0; padding: 10px 14px;
+        font-size: 0.95rem; transition: all 0.2s;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+    
+    .info-box {
+        background: linear-gradient(135deg, #fffbeb, #fef3c7);
+        border-radius: 12px; border: 1px solid #fde68a;
+        padding: 20px; margin-bottom: 24px;
+    }
+    .info-box .medicine-name { font-size: 1.1rem; font-weight: 800; color: #92400e; margin-bottom: 4px; }
+    .info-box .batch-label { font-size: 0.8rem; font-weight: 600; color: #b45309; margin-bottom: 12px; }
+    .info-box .info-row { display: flex; justify-content: space-between; font-size: 0.9rem; color: #78350f; padding: 4px 0; }
+    .info-box .info-row strong { color: #451a03; }
 
-<div class="card-metric" style="max-width: 560px;">
-    <p>
-        <strong>@Model.MedicineBrandName</strong> &mdash; Batch @Model.BatchNumber<br />
-        Currently in stock: @Model.CurrentQuantityRemaining.ToString("N2") @@ @Model.CostPerBaseUnit.ToString("N2") cost/unit
-    </p>
+    .btn-save {
+        background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff;
+        border: none; border-radius: 10px; padding: 10px 24px; font-weight: 600;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); transition: all 0.2s;
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4); color: #fff; }
+    .btn-cancel {
+        background: #f1f5f9; color: #475569; border: none; border-radius: 10px;
+        padding: 10px 24px; font-weight: 600; transition: all 0.2s;
+    }
+    .btn-cancel:hover { background: #e2e8f0; color: #0f172a; }
+</style>
+
+<div class="mb-4">
+    <h1 class="h3 fw-bold mb-1" style="color:#0f172a;">Return Stock to Supplier</h1>
+    <p class="text-muted small mb-0">Return unusable stock from Purchase <strong>#@Model.PurchaseId</strong></p>
+</div>
+
+<div class="form-card">
+    <div class="info-box">
+        <div class="medicine-name">@Model.MedicineBrandName</div>
+        <div class="batch-label">Batch: @Model.BatchNumber</div>
+        <div class="info-row">
+            <span>Currently in Stock</span>
+            <strong>@Model.CurrentQuantityRemaining.ToString("N2") units</strong>
+        </div>
+        <div class="info-row">
+            <span>Cost per Unit</span>
+            <strong>৳ @Model.CostPerBaseUnit.ToString("N2")</strong>
+        </div>
+    </div>
 
     <form asp-action="NewPurchaseReturn" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3 p-2 bg-danger-subtle rounded"></div>
         <input type="hidden" asp-for="MedicineBatchId" />
         <input type="hidden" asp-for="PurchaseId" />
         <input type="hidden" asp-for="MedicineBrandName" />
@@ -27,14 +76,14 @@
 
         <div class="mb-3">
             <label asp-for="QuantityReturned" class="form-label"></label>
-            <input asp-for="QuantityReturned" class="form-control" type="number" step="0.01" />
+            <input asp-for="QuantityReturned" class="form-control" type="number" step="0.01" placeholder="Enter quantity to return" />
             <span asp-validation-for="QuantityReturned" class="text-danger small"></span>
         </div>
 
         <div class="mb-3">
             <label asp-for="Reason" class="form-label"></label>
             <select asp-for="Reason" class="form-select">
-                <option value="">-- Select --</option>
+                <option value="">-- Select Reason --</option>
                 <option value="Expired">Expired</option>
                 <option value="Damaged">Damaged</option>
                 <option value="Wrong Item">Wrong Item</option>
@@ -43,13 +92,15 @@
             <span asp-validation-for="Reason" class="text-danger small"></span>
         </div>
 
-        <div class="mb-3">
+        <div class="mb-4">
             <label asp-for="Notes" class="form-label"></label>
-            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+            <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Optional notes..."></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary">Save Return</button>
-        <a class="btn btn-outline-secondary" asp-controller="Purchases" asp-action="Details" asp-route-id="@Model.PurchaseId">Cancel</a>
+        <div class="d-flex gap-2 pt-3 border-top">
+            <button type="submit" class="btn btn-save">Process Return</button>
+            <a class="btn btn-cancel" asp-controller="Purchases" asp-action="Details" asp-route-id="@Model.PurchaseId">Cancel</a>
+        </div>
     </form>
 </div>
 

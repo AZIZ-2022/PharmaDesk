@@ -7,48 +7,122 @@
     <li class="breadcrumb-item active" aria-current="page">Sales</li>
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Sales</h1>
+<style>
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px; }
+    .page-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.5px; }
+    
+    .btn-premium {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #fff !important; border: none; border-radius: 10px; padding: 10px 20px;
+        font-weight: 600; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        transition: all 0.2s;
+    }
+    .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4); }
+
+    .table-custom-wrapper {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); overflow: hidden;
+    }
+    .table-custom { width: 100%; margin-bottom: 0; border-collapse: collapse; }
+    .table-custom thead { background: #f8fafc; }
+    .table-custom th {
+        font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;
+        letter-spacing: 0.5px; padding: 16px 24px; border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+    }
+    .table-custom td {
+        padding: 16px 24px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;
+        font-size: 0.9rem; color: #334155;
+    }
+    .table-custom tbody tr { transition: background 0.2s; }
+    .table-custom tbody tr:hover { background: #f8fafc; }
+
+    .sale-id-badge {
+        background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 8px;
+        font-size: 0.75rem; font-weight: 700; font-family: 'Courier New', monospace;
+    }
+    
+    .due-amount { font-weight: 700; color: #dc2626; }
+    .paid-amount { color: #059669; font-weight: 600; }
+    .total-amount { font-weight: 800; color: #0f172a; font-size: 0.95rem; }
+
+    .btn-action {
+        padding: 6px 14px; font-size: 0.8rem; font-weight: 600; border-radius: 8px;
+        text-decoration: none; transition: all 0.2s;
+        background: #eff6ff; color: #2563eb !important; border: 1px solid #bfdbfe;
+        display: inline-block;
+    }
+    .btn-action:hover { background: #dbeafe; color: #1e40af !important; }
+
+    .empty-state { padding: 60px 20px; text-align: center; color: #64748b; }
+    .empty-state svg { width: 48px; height: 48px; color: #cbd5e1; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 700; color: #334155; margin-bottom: 8px; }
+    .empty-state p { margin: 0; }
+</style>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Sales</h1>
+        <p class="text-muted small mb-0 mt-1">All completed sales transactions.</p>
+    </div>
     @if (User.HasClaim("permission", "Sales.Manage"))
     {
-        <a class="btn btn-primary" asp-action="Pos">New Sale (POS)</a>
+        <a class="btn-premium" asp-action="Pos">+ New Sale (POS)</a>
     }
 </div>
 
-<div class="card-metric p-0">
-    <table class="table mb-0">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Customer</th>
-                <th>Branch</th>
-                <th class="text-end">Total</th>
-                <th class="text-end">Paid</th>
-                <th class="text-end">Due</th>
-                <th class="text-end">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var sale in Model)
-            {
-                <tr>
-                    <td>@sale.SaleDate.ToString("yyyy-MM-dd HH:mm")</td>
-                    <td>@sale.CustomerName</td>
-                    <td>@sale.BranchName</td>
-                    <td class="text-end">@sale.TotalAmount.ToString("N2")</td>
-                    <td class="text-end">@sale.AmountPaid.ToString("N2")</td>
-                    <td class="text-end">@sale.Due.ToString("N2")</td>
-                    <td class="text-end">
-                        <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@sale.Id">View</a>
-                    </td>
-                </tr>
-            }
-            @if (!Model.Any())
-            {
-                <tr>
-                    <td colspan="7" class="text-center text-muted py-4">No sales recorded yet.</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="table-custom-wrapper">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3>No Sales Recorded</h3>
+            <p>Get started by creating your first sale via POS.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Branch</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-end">Paid</th>
+                        <th class="text-end">Due</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var sale in Model)
+                    {
+                        <tr>
+                            <td class="text-muted">@sale.SaleDate.ToString("dd MMM yyyy, HH:mm")</td>
+                            <td class="fw-semibold text-dark">@sale.CustomerName</td>
+                            <td><span class="badge bg-light text-dark border fw-normal">@sale.BranchName</span></td>
+                            <td class="text-end total-amount">৳ @sale.TotalAmount.ToString("N2")</td>
+                            <td class="text-end paid-amount">৳ @sale.AmountPaid.ToString("N2")</td>
+                            <td class="text-end">
+                                @if (sale.Due > 0)
+                                {
+                                    <span class="due-amount">৳ @sale.Due.ToString("N2")</span>
+                                }
+                                else
+                                {
+                                    <span class="text-success fw-semibold">৳ 0.00</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a class="btn-action" asp-action="Details" asp-route-id="@sale.Id">View Receipt</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

@@ -9,74 +9,202 @@
     <meta charset="utf-8" />
     <title>Receipt #@Model.Id</title>
     <style>
-        body { font-family: Consolas, 'Courier New', monospace; max-width: 420px; margin: 24px auto; color: #111; }
-        h1 { font-size: 1.1rem; text-align: center; margin-bottom: 0; }
-        .meta { text-align: center; font-size: 0.85rem; margin-bottom: 1rem; color: #444; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th, td { padding: 2px 0; text-align: left; }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', Consolas, monospace;
+            max-width: 380px;
+            margin: 40px auto;
+            padding: 24px;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.5;
+        }
+        .receipt-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+        h1 {
+            font-size: 1.4rem;
+            text-align: center;
+            margin: 0 0 4px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        .meta {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #475569;
+            margin-bottom: 16px;
+        }
+        .meta strong { color: #0f172a; }
+        hr {
+            border: none;
+            border-top: 1px dashed #cbd5e1;
+            margin: 12px 0;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #64748b;
+            text-align: left;
+            padding: 6px 0;
+            border-bottom: 1px solid #e2e8f0;
+            letter-spacing: 0.5px;
+        }
         th.num, td.num { text-align: right; }
-        hr { border: none; border-top: 1px dashed #999; margin: 8px 0; }
-        .totals div { display: flex; justify-content: space-between; }
-        .totals .grand { font-weight: bold; font-size: 1rem; }
-        .no-print { text-align: center; margin-top: 1.5rem; }
-        @@media print { .no-print { display: none; } }
+        td { padding: 8px 0; border-bottom: 1px dashed #f1f5f9; }
+        td strong { color: #0f172a; }
+        
+        .totals { font-size: 0.85rem; }
+        .totals > div {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            color: #475569;
+        }
+        .totals .grand {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #0f172a;
+            padding: 12px 0;
+            border-top: 1px dashed #cbd5e1;
+            border-bottom: 1px dashed #cbd5e1;
+            margin: 8px 0;
+        }
+        .totals .due {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        .thanks {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px dashed #cbd5e1;
+        }
+
+        .no-print { text-align: center; margin-top: 24px; }
+        .btn-print {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff; border: none; border-radius: 10px;
+            padding: 12px 28px; font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            margin: 0 4px;
+        }
+        .btn-print:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); }
+        .btn-back {
+            background: #fff; color: #475569; border: 1px solid #e2e8f0;
+            border-radius: 10px; padding: 12px 24px; font-weight: 600;
+            font-size: 0.9rem; text-decoration: none; display: inline-block;
+            transition: all 0.2s; margin: 0 4px;
+        }
+        .btn-back:hover { background: #f8fafc; color: #0f172a; }
+
+        .return-link {
+            color: #dc2626; font-size: 0.7rem; text-decoration: none;
+            margin-left: 4px;
+        }
+        .return-link:hover { text-decoration: underline; }
+        .returned-tag {
+            background: #fef2f2; color: #dc2626; padding: 2px 6px;
+            border-radius: 4px; font-size: 0.65rem; font-weight: 700;
+        }
+
+        @@media print {
+            body { background: #fff; margin: 0; padding: 0; max-width: 100%; }
+            .receipt-card { box-shadow: none; border: none; padding: 0; }
+            .no-print { display: none; }
+        }
     </style>
 </head>
 <body>
-    <h1>PharmaDesk</h1>
-    <div class="meta">
-        Receipt #@Model.Id<br />
-        @Model.SaleDate.ToString("yyyy-MM-dd HH:mm") &middot; @Model.BranchName<br />
-        Customer: @Model.CustomerName
-    </div>
-    <hr />
-    <table>
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th class="num">Qty</th>
-                <th class="num">Price</th>
-                <th class="num">Total</th>
-                <th class="no-print"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Items)
-            {
+    <div class="receipt-card">
+        <h1>PharmaDesk</h1>
+        <div class="subtitle">Pharmacy Management</div>
+        
+        <div class="meta">
+            Receipt <strong>#@Model.Id</strong><br />
+            @Model.SaleDate.ToString("dd MMM yyyy, HH:mm") &middot; @Model.BranchName<br />
+            Customer: <strong>@Model.CustomerName</strong>
+        </div>
+
+        <hr />
+
+        <table>
+            <thead>
                 <tr>
-                    <td>@item.MedicineBrandName</td>
-                    <td class="num">@item.QuantityBaseUnits.ToString("N2")</td>
-                    <td class="num">@item.UnitPrice.ToString("N2")</td>
-                    <td class="num">@item.LineTotal.ToString("N2")</td>
-                    <td class="no-print">
-                        @if (User.HasClaim("permission", "Returns.Manage"))
-                        {
-                            if (item.IsReturned)
-                            {
-                                <span>Returned</span>
-                            }
-                            else
-                            {
-                                <a href="@Url.Action("NewSalesReturn", "Returns", new { saleItemId = item.SaleItemId })">Return</a>
-                            }
-                        }
-                    </td>
+                    <th>Item</th>
+                    <th class="num">Qty</th>
+                    <th class="num">Price</th>
+                    <th class="num">Total</th>
                 </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>
+                            <strong>@item.MedicineBrandName</strong>
+                            @if (User.HasClaim("permission", "Returns.Manage"))
+                            {
+                                if (item.IsReturned)
+                                {
+                                    <span class="returned-tag">Returned</span>
+                                }
+                                else
+                                {
+                                    <br /><a class="return-link no-print" href="@Url.Action("NewSalesReturn", "Returns", new { saleItemId = item.SaleItemId })">↩ Return this item</a>
+                                }
+                            }
+                        </td>
+                        <td class="num">@item.QuantityBaseUnits.ToString("N2")</td>
+                        <td class="num">@item.UnitPrice.ToString("N2")</td>
+                        <td class="num"><strong>@item.LineTotal.ToString("N2")</strong></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <hr />
+
+        <div class="totals">
+            <div><span>Subtotal</span><span>৳ @Model.SubTotal.ToString("N2")</span></div>
+            <div><span>Discount</span><span>- ৳ @Model.DiscountAmount.ToString("N2")</span></div>
+            <div><span>Tax / VAT</span><span>+ ৳ @Model.TaxAmount.ToString("N2")</span></div>
+            <div class="grand"><span>Total</span><span>৳ @Model.TotalAmount.ToString("N2")</span></div>
+            <div><span>Paid (@Model.PaymentMethod)</span><span>৳ @Model.AmountPaid.ToString("N2")</span></div>
+            @if (Model.Due > 0)
+            {
+                <div class="due"><span>Due</span><span>৳ @Model.Due.ToString("N2")</span></div>
             }
-        </tbody>
-    </table>
-    <hr />
-    <div class="totals">
-        <div><span>Subtotal</span><span>@Model.SubTotal.ToString("N2")</span></div>
-        <div><span>Discount</span><span>@Model.DiscountAmount.ToString("N2")</span></div>
-        <div><span>Tax / VAT</span><span>@Model.TaxAmount.ToString("N2")</span></div>
-        <div class="grand"><span>Total</span><span>@Model.TotalAmount.ToString("N2")</span></div>
-        <div><span>Paid (@Model.PaymentMethod)</span><span>@Model.AmountPaid.ToString("N2")</span></div>
-        <div><span>Due</span><span>@Model.Due.ToString("N2")</span></div>
+        </div>
+
+        <div class="thanks">
+            Thank you for your purchase!<br />
+            Get well soon 💊
+        </div>
     </div>
+
     <div class="no-print">
-        <button onclick="window.print()">Print</button>
-        <a href="@Url.Action("Index", "Sales")">Back to Sales</a>
+        <button class="btn-print" onclick="window.print()">
+            🖨️ Print Receipt
+        </button>
+        <a class="btn-back" href="@Url.Action("Index", "Sales")">← Back</a>
     </div>
 </body>
 </html>

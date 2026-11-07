@@ -7,22 +7,92 @@
 }
 
 @section Breadcrumb {
-    <li class="breadcrumb-item"><a asp-action="StockOverview">Stock Overview</a></li>
+    <li class="breadcrumb-item"><a asp-action="StockOverview" class="text-decoration-none text-muted">Stock Overview</a></li>
     <li class="breadcrumb-item active" aria-current="page">Batches</li>
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Batches</h1>
+<style>
+    .page-header { margin-bottom: 1.5rem; }
+    .page-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.5px; }
+
+    .alert-success-soft {
+        background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;
+        border-radius: 12px; display: flex; align-items: center; gap: 10px;
+        padding: 14px 20px; font-size: 0.9rem; font-weight: 500; margin-bottom: 1.5rem;
+    }
+
+    .filter-bar {
+        background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
+        padding: 16px 20px; margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;
+    }
+    .filter-bar .form-select {
+        border-radius: 8px; border: 1.5px solid #e2e8f0; padding: 8px 12px;
+        font-size: 0.9rem; font-weight: 500;
+    }
+    .filter-bar .form-select:focus { border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1); }
+    .filter-bar .form-check-input:checked { background-color: #8b5cf6; border-color: #8b5cf6; }
+    
+    .btn-filter {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+        border: none; border-radius: 8px; padding: 8px 20px; font-weight: 600;
+        font-size: 0.9rem; transition: all 0.2s;
+    }
+    .btn-filter:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+
+    .table-custom-wrapper {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); overflow: hidden;
+    }
+    .table-custom { width: 100%; margin-bottom: 0; border-collapse: collapse; }
+    .table-custom thead { background: #f8fafc; }
+    .table-custom th {
+        font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;
+        letter-spacing: 0.5px; padding: 14px 16px; border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+    }
+    .table-custom td {
+        padding: 14px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;
+        font-size: 0.9rem; color: #334155;
+    }
+    .table-custom tbody tr { transition: background 0.2s; }
+    .table-custom tbody tr:hover { background: #f8fafc; }
+    .table-custom tbody tr.expired-row { background: #fef2f2 !important; }
+    .table-custom tbody tr.expired-row:hover { background: #fee2e2 !important; }
+    .table-custom tbody tr.expired-row td { color: #991b1b; }
+
+    .batch-number { font-family: 'Courier New', monospace; font-weight: 700; font-size: 0.85rem; color: #475569; }
+    .expired-badge { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; margin-left: 6px; }
+
+    .btn-adjust {
+        padding: 6px 14px; font-size: 0.8rem; font-weight: 600; border-radius: 8px;
+        text-decoration: none; transition: all 0.2s;
+        background: #f1f5f9; color: #475569 !important; border: 1px solid #e2e8f0;
+    }
+    .btn-adjust:hover { background: #e2e8f0; color: #0f172a !important; }
+
+    .empty-state { padding: 60px 20px; text-align: center; color: #64748b; }
+    .empty-state svg { width: 48px; height: 48px; color: #cbd5e1; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 700; color: #334155; margin-bottom: 8px; }
+</style>
+
+<div class="page-header">
+    <h1 class="page-title">Batches</h1>
+    <p class="text-muted small mb-0 mt-1">All medicine batches across branches with stock details.</p>
 </div>
 
 @if (TempData["StatusMessage"] is string status)
 {
-    <div class="alert alert-success py-2 small">@status</div>
+    <div class="alert-success-soft">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+        <span>@status</span>
+    </div>
 }
 
-<form method="get" class="mb-3 d-flex gap-2 align-items-end" style="max-width: 600px;">
-    <div class="flex-grow-1">
-        <label class="form-label small mb-0">Branch</label>
+<form method="get" class="filter-bar">
+    <div style="flex: 1; min-width: 200px;">
+        <label class="form-label small fw-semibold text-muted mb-1">Branch</label>
         <select name="branchId" class="form-select">
             <option value="">-- All branches --</option>
             @foreach (var branch in branches)
@@ -33,52 +103,65 @@
     </div>
     <div class="form-check mb-2">
         <input type="checkbox" class="form-check-input" name="showExhausted" value="true" id="showExhausted" checked="@showExhausted" />
-        <label class="form-check-label" for="showExhausted">Show exhausted batches</label>
+        <label class="form-check-label small fw-semibold" for="showExhausted">Show exhausted batches</label>
     </div>
-    <button type="submit" class="btn btn-outline-secondary mb-2">Filter</button>
+    <button type="submit" class="btn btn-filter">Apply Filter</button>
 </form>
 
-<div class="card-metric p-0">
-    <table class="table mb-0">
-        <thead>
-            <tr>
-                <th>Medicine</th>
-                <th>Branch</th>
-                <th>Supplier</th>
-                <th>Batch No.</th>
-                <th>Expiry</th>
-                <th class="text-end">Remaining</th>
-                <th class="text-end">Cost / unit</th>
-                <th class="text-end">Sale price / unit</th>
-                <th class="text-end">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var batch in Model)
-            {
-                <tr class="@(batch.IsExpired ? "table-danger" : "")">
-                    <td>@batch.MedicineBrandName</td>
-                    <td>@batch.BranchName</td>
-                    <td>@batch.SupplierName</td>
-                    <td>@batch.BatchNumber</td>
-                    <td>@batch.ExpiryDate.ToString("yyyy-MM-dd")</td>
-                    <td class="text-end">@batch.QuantityRemaining.ToString("N2")</td>
-                    <td class="text-end">@batch.PurchaseCostPerBaseUnit.ToString("N2")</td>
-                    <td class="text-end">@batch.SellingPricePerBaseUnit.ToString("N2")</td>
-                    <td class="text-end">
-                        @if (User.HasClaim("permission", "Inventory.Adjust"))
-                        {
-                            <a class="btn btn-sm btn-outline-secondary" asp-action="Adjust" asp-route-batchId="@batch.Id">Adjust</a>
-                        }
-                    </td>
-                </tr>
-            }
-            @if (!Model.Any())
-            {
-                <tr>
-                    <td colspan="9" class="text-center text-muted py-4">No batches found.</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="table-custom-wrapper">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            <h3>No Batches Found</h3>
+            <p>Try adjusting the filter or add new purchases.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Medicine</th>
+                        <th>Branch</th>
+                        <th>Supplier</th>
+                        <th>Batch No.</th>
+                        <th>Expiry</th>
+                        <th class="text-end">Remaining</th>
+                        <th class="text-end">Cost / unit</th>
+                        <th class="text-end">Sale / unit</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var batch in Model)
+                    {
+                        <tr class="@(batch.IsExpired ? "expired-row" : "")">
+                            <td class="fw-bold text-dark">@batch.MedicineBrandName</td>
+                            <td class="text-muted">@batch.BranchName</td>
+                            <td class="text-muted">@batch.SupplierName</td>
+                            <td>
+                                <span class="batch-number">@batch.BatchNumber</span>
+                                @if (batch.IsExpired)
+                                {
+                                    <span class="expired-badge">EXPIRED</span>
+                                }
+                            </td>
+                            <td class="text-muted">@batch.ExpiryDate.ToString("dd MMM yyyy")</td>
+                            <td class="text-end fw-bold">@batch.QuantityRemaining.ToString("N2")</td>
+                            <td class="text-end">৳ @batch.PurchaseCostPerBaseUnit.ToString("N2")</td>
+                            <td class="text-end">৳ @batch.SellingPricePerBaseUnit.ToString("N2")</td>
+                            <td class="text-end">
+                                @if (User.HasClaim("permission", "Inventory.Adjust"))
+                                {
+                                    <a class="btn-adjust" asp-action="Adjust" asp-route-batchId="@batch.Id">Adjust</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

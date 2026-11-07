@@ -4,104 +4,268 @@
 }
 
 @section Breadcrumb {
-    <li class="breadcrumb-item"><a asp-action="Index">Sales</a></li>
-    <li class="breadcrumb-item active" aria-current="page">New Sale</li>
+    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Sales</a></li>
+    <li class="breadcrumb-item active" aria-current="page">POS</li>
 }
 
-<h1 class="h3 mb-4">New Sale</h1>
+<style>
+    .pos-header { margin-bottom: 1.5rem; }
+    .page-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.5px; }
+
+    .card-panel {
+        background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); padding: 20px;
+        margin-bottom: 16px;
+    }
+    .form-label { font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 6px; }
+    .form-control, .form-select {
+        border-radius: 10px; border: 1.5px solid #e2e8f0; padding: 10px 14px;
+        font-size: 0.9rem; transition: all 0.2s;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+
+    /* Search Bar */
+    .search-container { position: relative; }
+    .search-container .form-control {
+        padding: 14px 18px; font-size: 1rem;
+        border-radius: 12px; border: 2px solid #e2e8f0;
+    }
+    .search-container .form-control:focus {
+        border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    }
+    .search-results {
+        position: absolute; top: 100%; left: 0; right: 0; z-index: 1000;
+        background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
+        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15);
+        max-height: 300px; overflow-y: auto; margin-top: 8px;
+        display: none;
+    }
+    .search-results .list-group-item {
+        border: none; padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
+        cursor: pointer; transition: background 0.15s;
+    }
+    .search-results .list-group-item:hover { background: #f8fafc; }
+    .search-results .list-group-item:last-child { border-bottom: none; }
+
+    /* Items Table */
+    .items-table { width: 100%; margin-bottom: 0; }
+    .items-table th {
+        font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase;
+        letter-spacing: 0.5px; padding: 12px 16px; border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+    .items-table td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    .items-table .brand-display { font-weight: 700; color: #0f172a; font-size: 0.9rem; }
+    .items-table .form-control-sm {
+        border-radius: 8px; font-size: 0.85rem; padding: 6px 10px;
+    }
+    .items-table .qty-input { max-width: 100px; text-align: center; font-weight: 600; }
+    .unit-price-display { font-weight: 600; color: #475569; font-size: 0.9rem; }
+    .line-total-display { font-weight: 800; color: #0f172a; font-size: 0.95rem; }
+
+    /* Totals Box */
+    .totals-box {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        border-radius: 16px; padding: 24px; color: #fff;
+        box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.3);
+        position: sticky; top: 20px;
+    }
+    .totals-box .totals-row {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 10px 0; font-size: 0.9rem; color: #cbd5e1;
+    }
+    .totals-box .totals-row.divider {
+        border-top: 1px dashed rgba(255,255,255,0.15);
+        margin-top: 8px; padding-top: 16px;
+    }
+    .totals-box .totals-row.grand-total {
+        font-size: 1.4rem; font-weight: 800; color: #fff;
+        padding: 16px 0;
+    }
+    .totals-box .totals-row.grand-total .value { color: #a5b4fc; }
+    
+    .totals-box .totals-row.due-row {
+        background: rgba(220, 38, 38, 0.15);
+        border-radius: 10px; padding: 14px 16px; margin-top: 8px;
+        color: #fca5a5; font-weight: 700;
+    }
+    .totals-box .totals-row.due-row .value { color: #fecaca; font-size: 1.1rem; }
+    
+    .totals-box .totals-row.amount-input-row { padding: 6px 0; }
+    .totals-box .amount-input-row label {
+        font-size: 0.8rem; color: #94a3b8; margin: 0;
+    }
+    .totals-box .amount-input {
+        background: rgba(255,255,255,0.08) !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        color: #fff !important; border-radius: 8px !important;
+        padding: 6px 12px !important; font-size: 0.9rem !important;
+        text-align: right; font-weight: 600;
+        max-width: 120px;
+    }
+    .totals-box .amount-input:focus {
+        border-color: #a5b4fc !important;
+        box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.2) !important;
+    }
+
+    .btn-complete {
+        background: linear-gradient(135deg, #10b981, #059669); color: #fff;
+        border: none; border-radius: 12px; padding: 16px; font-weight: 700;
+        font-size: 1rem; width: 100%; margin-top: 16px;
+        box-shadow: 0 8px 20px -5px rgba(16, 185, 129, 0.4);
+        transition: all 0.2s;
+    }
+    .btn-complete:hover {
+        transform: translateY(-2px); color: #fff;
+        box-shadow: 0 12px 25px -5px rgba(16, 185, 129, 0.6);
+    }
+    .btn-cancel-pos {
+        background: rgba(255,255,255,0.08); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 10px; padding: 10px; font-weight: 600; width: 100%; margin-top: 8px;
+        text-decoration: none; display: block; text-align: center; transition: all 0.2s;
+        font-size: 0.85rem;
+    }
+    .btn-cancel-pos:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+    .remove-row-button {
+        background: transparent; border: 1px solid #fecaca; color: #dc2626;
+        width: 28px; height: 28px; border-radius: 8px; font-size: 1rem;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s; padding: 0;
+    }
+    .remove-row-button:hover { background: #fef2f2; color: #991b1b; }
+</style>
+
+<div class="pos-header">
+    <h1 class="page-title">Point of Sale</h1>
+    <p class="text-muted small mb-0 mt-1">Create a new sale invoice</p>
+</div>
 
 <form asp-action="Complete" method="post" id="saleForm">
-    <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3 p-2 bg-danger-subtle rounded"></div>
 
-    <div class="card-metric mb-4">
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <label asp-for="BranchId" class="form-label"></label>
-                <select asp-for="BranchId" class="form-select" asp-items="Model.AvailableBranches" id="branchSelect"></select>
-                <span asp-validation-for="BranchId" class="text-danger small"></span>
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Header Info -->
+            <div class="card-panel">
+                <div class="row">
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <label asp-for="BranchId" class="form-label"></label>
+                        <select asp-for="BranchId" class="form-select" asp-items="Model.AvailableBranches" id="branchSelect"></select>
+                        <span asp-validation-for="BranchId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <label asp-for="CustomerId" class="form-label"></label>
+                        <select asp-for="CustomerId" class="form-select" asp-items="Model.AvailableCustomers"></select>
+                        <span asp-validation-for="CustomerId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="PaymentMethod" class="form-label"></label>
+                        <select asp-for="PaymentMethod" class="form-select">
+                            <option value="Cash">💵 Cash</option>
+                            <option value="Card">💳 Card</option>
+                            <option value="Mobile Banking">📱 Mobile Banking</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-4 mb-3">
-                <label asp-for="CustomerId" class="form-label"></label>
-                <select asp-for="CustomerId" class="form-select" asp-items="Model.AvailableCustomers"></select>
-                <span asp-validation-for="CustomerId" class="text-danger small"></span>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label asp-for="PaymentMethod" class="form-label"></label>
-                <select asp-for="PaymentMethod" class="form-select">
-                    <option value="Cash">Cash</option>
-                    <option value="Card">Card</option>
-                    <option value="Mobile Banking">Mobile Banking</option>
-                </select>
-            </div>
-        </div>
-    </div>
 
-    <div class="card-metric mb-4 position-relative">
-        <label class="form-label">Search medicine (brand or generic name)</label>
-        <input type="text" class="form-control" id="medicineSearchInput" autocomplete="off" placeholder="Type to search..." />
-        <div id="searchResults" class="list-group position-absolute shadow" style="z-index: 1000; width: 90%; display: none; max-height: 280px; overflow-y: auto;"></div>
-    </div>
+            <!-- Search -->
+            <div class="card-panel search-container">
+                <label class="form-label">🔍 Search Medicine</label>
+                <input type="text" class="form-control" id="medicineSearchInput" autocomplete="off" placeholder="Type brand or generic name to search..." />
+                <div id="searchResults" class="search-results"></div>
+            </div>
 
-    <div class="card-metric p-0 mb-4">
-        <table class="table mb-0" id="itemsTable">
-            <thead>
-                <tr>
-                    <th style="min-width: 200px;">Medicine</th>
-                    <th style="width: 140px;">Qty (base units)</th>
-                    <th style="width: 120px;">Unit price</th>
-                    <th style="width: 120px;">Line total</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="itemsBody">
-                @for (var i = 0; i < Model.Items.Count; i++)
+            <!-- Items Table -->
+            <div class="card-panel p-0">
+                <div class="table-responsive">
+                    <table class="items-table" id="itemsTable">
+                        <thead>
+                            <tr>
+                                <th style="min-width: 220px;">Medicine</th>
+                                <th style="width: 130px;">Qty (units)</th>
+                                <th style="width: 120px;">Unit Price</th>
+                                <th style="width: 120px;">Line Total</th>
+                                <th style="width: 50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsBody">
+                            @for (var i = 0; i < Model.Items.Count; i++)
+                            {
+                                <tr class="sale-item-row">
+                                    <td>
+                                        <span class="brand-display">@Model.Items[i].MedicineBrandName</span>
+                                        <input type="hidden" data-field="MedicineId" value="@Model.Items[i].MedicineId" />
+                                        <input type="hidden" data-field="MedicineBrandName" value="@Model.Items[i].MedicineBrandName" />
+                                        <input type="hidden" data-field="UnitPriceQuoted" value="@Model.Items[i].UnitPriceQuoted" />
+                                    </td>
+                                    <td><input type="number" step="0.01" class="form-control form-control-sm qty-input" data-field="QuantityBaseUnits" value="@Model.Items[i].QuantityBaseUnits" /></td>
+                                    <td class="unit-price-display">@Model.Items[i].UnitPriceQuoted.ToString("N2")</td>
+                                    <td class="line-total-display">0.00</td>
+                                    <td><button type="button" class="remove-row-button">&times;</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                @if (Model.Items.Count == 0)
                 {
-                    <tr class="sale-item-row">
-                        <td>
-                            <span class="brand-display">@Model.Items[i].MedicineBrandName</span>
-                            <input type="hidden" data-field="MedicineId" value="@Model.Items[i].MedicineId" />
-                            <input type="hidden" data-field="MedicineBrandName" value="@Model.Items[i].MedicineBrandName" />
-                            <input type="hidden" data-field="UnitPriceQuoted" value="@Model.Items[i].UnitPriceQuoted" />
-                        </td>
-                        <td><input type="number" step="0.01" class="form-control form-control-sm qty-input" data-field="QuantityBaseUnits" value="@Model.Items[i].QuantityBaseUnits" /></td>
-                        <td class="unit-price-display">@Model.Items[i].UnitPriceQuoted.ToString("N2")</td>
-                        <td class="line-total-display align-middle">0.00</td>
-                        <td><button type="button" class="btn btn-sm btn-outline-danger remove-row-button">&times;</button></td>
-                    </tr>
+                    <div class="text-center py-5 text-muted" id="emptyCart">
+                        <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" style="opacity:0.4; margin-bottom:12px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        <p class="mb-0">No items in cart. Search above to add medicines.</p>
+                    </div>
                 }
-            </tbody>
-        </table>
-    </div>
+            </div>
+        </div>
 
-    <div class="card-metric mb-4" style="max-width: 420px; margin-left: auto;">
-        <div class="row mb-2">
-            <div class="col-6">Subtotal</div>
-            <div class="col-6 text-end" id="subTotalDisplay">0.00</div>
-        </div>
-        <div class="row mb-2 align-items-center">
-            <div class="col-6"><label asp-for="DiscountAmount" class="form-label mb-0"></label></div>
-            <div class="col-6"><input asp-for="DiscountAmount" class="form-control form-control-sm text-end amount-input" type="number" step="0.01" /></div>
-        </div>
-        <div class="row mb-2 align-items-center">
-            <div class="col-6"><label asp-for="TaxAmount" class="form-label mb-0"></label></div>
-            <div class="col-6"><input asp-for="TaxAmount" class="form-control form-control-sm text-end amount-input" type="number" step="0.01" /></div>
-        </div>
-        <div class="row mb-2 fw-bold">
-            <div class="col-6">Total</div>
-            <div class="col-6 text-end" id="totalDisplay">0.00</div>
-        </div>
-        <div class="row mb-2 align-items-center">
-            <div class="col-6"><label asp-for="AmountPaid" class="form-label mb-0"></label></div>
-            <div class="col-6"><input asp-for="AmountPaid" class="form-control form-control-sm text-end amount-input" type="number" step="0.01" /></div>
-        </div>
-        <div class="row fw-bold">
-            <div class="col-6">Due</div>
-            <div class="col-6 text-end" id="dueDisplay">0.00</div>
+        <div class="col-lg-4">
+            <!-- Totals -->
+            <div class="totals-box">
+                <div class="totals-row">
+                    <span>Subtotal</span>
+                    <span class="fw-bold" id="subTotalDisplay">৳ 0.00</span>
+                </div>
+
+                <div class="totals-row amount-input-row">
+                    <label asp-for="DiscountAmount">Discount</label>
+                    <input asp-for="DiscountAmount" class="form-control amount-input" type="number" step="0.01" placeholder="0.00" />
+                </div>
+
+                <div class="totals-row amount-input-row">
+                    <label asp-for="TaxAmount">Tax / VAT</label>
+                    <input asp-for="TaxAmount" class="form-control amount-input" type="number" step="0.01" placeholder="0.00" />
+                </div>
+
+                <div class="totals-row divider grand-total">
+                    <span>Total</span>
+                    <span class="value" id="totalDisplay">৳ 0.00</span>
+                </div>
+
+                <div class="totals-row amount-input-row">
+                    <label asp-for="AmountPaid">Amount Paid</label>
+                    <input asp-for="AmountPaid" class="form-control amount-input" type="number" step="0.01" placeholder="0.00" />
+                </div>
+
+                <div class="totals-row due-row">
+                    <span>Due</span>
+                    <span class="value" id="dueDisplay">৳ 0.00</span>
+                </div>
+
+                <button type="submit" class="btn btn-complete">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" style="vertical-align: -3px; margin-right: 6px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Complete Sale
+                </button>
+                <a class="btn-cancel-pos" asp-action="Index">Cancel</a>
+            </div>
         </div>
     </div>
-
-    <button type="submit" class="btn btn-primary">Complete Sale</button>
-    <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
 </form>
 
 <template id="itemRowTemplate">
@@ -114,8 +278,8 @@
         </td>
         <td><input type="number" step="0.01" class="form-control form-control-sm qty-input" data-field="QuantityBaseUnits" value="1" /></td>
         <td class="unit-price-display">0.00</td>
-        <td class="line-total-display align-middle">0.00</td>
-        <td><button type="button" class="btn btn-sm btn-outline-danger remove-row-button">&times;</button></td>
+        <td class="line-total-display">0.00</td>
+        <td><button type="button" class="remove-row-button">&times;</button></td>
     </tr>
 </template>
 
@@ -132,6 +296,11 @@
             var taxInput = document.querySelector('[name="TaxAmount"]');
             var paidInput = document.querySelector('[name="AmountPaid"]');
             var searchDebounceHandle = null;
+            var emptyCart = document.getElementById('emptyCart');
+
+            function hideEmptyCart() {
+                if (emptyCart) emptyCart.style.display = 'none';
+            }
 
             function reindexAndBind() {
                 var rows = itemsBody.querySelectorAll('.sale-item-row');
@@ -159,9 +328,9 @@
                 var paid = parseFloat(paidInput.value) || 0;
                 var total = subTotal - discount + tax;
 
-                document.getElementById('subTotalDisplay').textContent = subTotal.toFixed(2);
-                document.getElementById('totalDisplay').textContent = total.toFixed(2);
-                document.getElementById('dueDisplay').textContent = (total - paid).toFixed(2);
+                document.getElementById('subTotalDisplay').textContent = '৳ ' + subTotal.toFixed(2);
+                document.getElementById('totalDisplay').textContent = '৳ ' + total.toFixed(2);
+                document.getElementById('dueDisplay').textContent = '৳ ' + (total - paid).toFixed(2);
             }
 
             function wireRow(row) {
@@ -175,6 +344,7 @@
             }
 
             function addRow(result) {
+                hideEmptyCart();
                 var fragment = template.content.cloneNode(true);
                 itemsBody.appendChild(fragment);
                 var newRow = itemsBody.lastElementChild;
@@ -210,8 +380,8 @@
                     item.className = 'list-group-item list-group-item-action';
                     var stockText = result.availableQuantity > 0
                         ? (result.availableQuantity.toFixed(2) + ' ' + result.baseUnitName + '(s) in stock @@ ' + (result.unitPrice || 0).toFixed(2))
-                        : 'Out of stock';
-                    item.innerHTML = '<strong>' + result.brandName + '</strong> <span class="text-muted">(' + result.genericName + ')</span><br /><small>' + stockText + '</small>';
+                        : '❌ Out of stock';
+                    item.innerHTML = '<div class="d-flex justify-content-between align-items-center"><div><strong>' + result.brandName + '</strong> <span class="text-muted small">(' + result.genericName + ')</span></div><small class="text-muted">' + stockText + '</small></div>';
                     item.disabled = result.availableQuantity <= 0;
                     item.addEventListener('click', function () {
                         addRow(result);
@@ -225,9 +395,7 @@
 
             searchInput.addEventListener('input', function () {
                 var q = searchInput.value.trim();
-                if (searchDebounceHandle) {
-                    clearTimeout(searchDebounceHandle);
-                }
+                if (searchDebounceHandle) clearTimeout(searchDebounceHandle);
                 if (q.length < 2) {
                     searchResults.style.display = 'none';
                     return;
